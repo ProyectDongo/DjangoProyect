@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Entrenador{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="bi bi-speedometer2 me-2"></i>Panel de Entrenador
+        </h1>
+        <a href="{% url 'create_plan' %}" class="btn btn-excel">
+            <i class="bi bi-plus-circle me-1"></i>Crear Nuevo Plan
+        </a>
+         <a href="{% url 'create_client' %}" class="btn btn-excel">
+                <i class="bi bi-person-plus me-1"></i>Crear Cliente
+        </a>
+        <a href="{% url 'create_exercise' %}" class="btn btn-excel">  
+            <i class="bi bi-dumbbell me-1"></i>Crear Ejercicio
+        </a>
+            </div>
+
+    <!-- Fila de estadísticas -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Planes Activos</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_plans_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-clipboard-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Clientes Activos</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ clients_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-people fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Sesiones Esta Semana</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ weekly_sessions }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-calendar-week fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Ejercicios Registrados</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ exercises_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-activity fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestañas estilo Excel -->
+    <ul class="nav mb-3">
+        <li class="excel-sheet-tab active" data-bs-toggle="tab" data-bs-target="#planes">Planes</li>
+        <li class="excel-sheet-tab" data-bs-toggle="tab" data-bs-target="#clientes">Clientes</li>
+        <li class="excel-sheet-tab" data-bs-toggle="tab" data-bs-target="#rpe">RPE/RIR</li>
+        <li class="excel-sheet-tab" data-bs-toggle="tab" data-bs-target="#calentamientos">Calentamientos</li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Tabla de Planes -->
+        <div class="tab-pane fade show active" id="planes">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Planes de Entrenamiento</h6>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-filter me-1"></i>Filtrar
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" href="#">Todos</a></li>
+                            <li><a class="dropdown-item" href="#">Activos</a></li>
+                            <li><a class="dropdown-item" href="#">Completados</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered excel-table" width="100%" cellspacing="0">
+                            <thead class="excel-header">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Cliente</th>
+                                    <th>Inicio</th>
+                                    <th>Fin</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for plan in plans %}
+                                <tr>
+                                    <td class="excel-cell">{{ plan.name }}</td>
+                                    <td class="excel-cell">{{ plan.client.username }}</td>
+                                    <td class="excel-cell">{{ plan.start_date }}</td>
+                                    <td class="excel-cell">{{ plan.end_date }}</td>
+                                    <td class="excel-cell">
+                                        <span class="badge bg-{% if plan.status == 'Activo' %}success{% else %}secondary{% endif %}">
+                                            {{ plan.status }}
+                                        </span>
+                                    </td>
+                                    <td class="excel-cell">
+                                        <a href="{% url 'trainer_plan_detail' plan.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{% url 'edit_plan' plan.id %}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Clientes -->
+        <div class="tab-pane fade" id="clientes">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Clientes Asignados</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered excel-table" width="100%" cellspacing="0">
+                            <thead class="excel-header">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Planes Activos</th>
+                                    <th>Última Sesión</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for client in clients %}
+                                <tr>
+                                    <td class="excel-cell">{{ client.username }}</td>
+                                    <td class="excel-cell">{{ client.email }}</td>
+                                    <td class="excel-cell text-center">{{ client.active_plans }}</td>
+                                    <td class="excel-cell">{{ client.last_session|date:"d/m/Y" }}</td>
+                                    <td class="excel-cell">
+                                        <a href="#" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-person-lines-fill"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla RPE/RIR -->
+        <div class="tab-pane fade" id="rpe">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tabla de Referencia RPE/RIR</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered rpe-table excel-table">
+                            <thead class="excel-header">
+                                <tr>
+                                    <th>ESCALA RPE</th>
+                                    <th>¿QUÉ SIGNIFICA? RPE</th>
+                                    <th>ESCALA RIR</th>
+                                    <th>¿QUÉ SIGNIFICA? RIR</th>
+                                    <th>RELACIÓN ENTRE AMBOS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="excel-cell text-center">10.0</td>
+                                    <td class="excel-cell">Máximo esfuerzo, no puede hacer más repeticiones</td>
+                                    <td class="excel-cell text-center">0.0</td>
+                                    <td class="excel-cell">No queda ninguna repetición (fallo)</td>
+                                    <td class="excel-cell text-center">RPE 10 = RIR 0</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">9.5</td>
+                                    <td class="excel-cell">Podría haber hecho 0-1 repetición más</td>
+                                    <td class="excel-cell text-center">0-1</td>
+                                    <td class="excel-cell">Casi al fallo, máxima exigencia</td>
+                                    <td class="excel-cell text-center">RPE 9.5 = RIR 0-1</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">9.0</td>
+                                    <td class="excel-cell">Te quedan 1 repetición más</td>
+                                    <td class="excel-cell text-center">1.0</td>
+                                    <td class="excel-cell">Te queda 1 repetición en reserva</td>
+                                    <td class="excel-cell text-center">RPE 9 = RIR 1</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">8.5</td>
+                                    <td class="excel-cell">Te quedan 1-2 repeticiones más</td>
+                                    <td class="excel-cell text-center">1-2</td>
+                                    <td class="excel-cell">Muy cerca del fallo, pero sin alcanzarlo</td>
+                                    <td class="excel-cell text-center">RPE 8.5 = RIR 1-2</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">8.0</td>
+                                    <td class="excel-cell">Te quedan 2 repeticiones más</td>
+                                    <td class="excel-cell text-center">2.0</td>
+                                    <td class="excel-cell">Te quedan 2 repeticiones antes del fallo</td>
+                                    <td class="excel-cell text-center">RPE 8 = RIR 2</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">7.5</td>
+                                    <td class="excel-cell">Te quedan 2-3 repeticiones más</td>
+                                    <td class="excel-cell text-center">2-3</td>
+                                    <td class="excel-cell">Entrenamiento moderado</td>
+                                    <td class="excel-cell text-center">RPE 7.5 = RIR 2-3</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">7.0</td>
+                                    <td class="excel-cell">Te quedan 3 repeticiones más</td>
+                                    <td class="excel-cell text-center">3.0</td>
+                                    <td class="excel-cell">Mucho margen, esfuerzo bajo</td>
+                                    <td class="excel-cell text-center">RPE 7 = RIR 3</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">6 o MENOS</td>
+                                    <td class="excel-cell">Calentamiento o muy poca carga</td>
+                                    <td class="excel-cell text-center">4 o MÁS</td>
+                                    <td class="excel-cell">Sería muy fácil</td>
+                                    <td class="excel-cell text-center">RPE 6 = RIR 4+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Calentamientos -->
+        <div class="tab-pane fade" id="calentamientos">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="m-0 font-weight-bold text-primary">Ejercicios de Calentamiento</h6>
+                <a href="{% url 'create_warmup' %}" class="btn btn-excel btn-sm">
+                    <i class="bi bi-plus-circle me-1"></i>Agregar Calentamiento
+                </a>
+            </div>
+            
+            <div class="row">
+                <!-- Calentamiento Tren Inferior -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Tren Inferior</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-bordered excel-table m-0" width="100%" cellspacing="0">
+                                    <thead class="excel-header">
+                                        <tr>
+                                            <th>Ejercicio</th>
+                                            <th>Series/Reps</th>
+                                            <th>Notas</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for warmup in warmups.lower_body %}
+                                        <tr>
+                                            <td class="excel-cell">{{ warmup.name }}</td>
+                                            <td class="excel-cell">{{ warmup.series_reps }}</td>
+                                            <td class="excel-cell">{{ warmup.notes }}</td>
+                                            <td class="excel-cell">
+                                                {% if warmup.video_url %}
+                                                <a href="{{ warmup.video_url }}" target="_blank" class="btn btn-sm btn-outline-info me-1">
+                                                    <i class="bi bi-play-btn"></i>
+                                                </a>
+                                                {% endif %}
+                                                <a href="{% url 'update_warmup' warmup.id %}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calentamiento Tren Superior -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Tren Superior</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-bordered excel-table m-0" width="100%" cellspacing="0">
+                                    <thead class="excel-header">
+                                        <tr>
+                                            <th>Ejercicio</th>
+                                            <th>Series/Reps</th>
+                                            <th>Notas</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for warmup in warmups.upper_body %}
+                                        <tr>
+                                            <td class="excel-cell">{{ warmup.name }}</td>
+                                            <td class="excel-cell">{{ warmup.series_reps }}</td>
+                                            <td class="excel-cell">{{ warmup.notes }}</td>
+                                            <td class="excel-cell">
+                                                {% if warmup.video_url %}
+                                                <a href="{{ warmup.video_url }}" target="_blank" class="btn btn-sm btn-outline-info me-1">
+                                                    <i class="bi bi-play-btn"></i>
+                                                </a>
+                                                {% endif %}
+                                                <a href="{% url 'update_warmup' warmup.id %}" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

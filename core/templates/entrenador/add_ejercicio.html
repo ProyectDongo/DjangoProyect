@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Agregar Ejercicio{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="bi bi-plus-circle me-1"></i>Agregar Ejercicio a "{{ workout.title }}"
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_exercise" class="form-label">Ejercicio</label>
+                                {{ form.exercise }}
+                            </div>
+                            <div class="col-md-3">
+                                <label for="id_sets" class="form-label">Series</label>
+                                {{ form.sets }}
+                            </div>
+                            <div class="col-md-3">
+                                <label for="id_order" class="form-label">Orden</label>
+                                {{ form.order }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="id_reps_target" class="form-label">Repeticiones Objetivo</label>
+                                {{ form.reps_target }}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="id_rir_target" class="form-label">RIR Objetivo</label>
+                                {{ form.rir_target }}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="id_rpe_target" class="form-label">RPE Objetivo</label>
+                                {{ form.rpe_target }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_rest_period_seconds" class="form-label">Descanso (segundos)</label>
+                                {{ form.rest_period_seconds }}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_notes" class="form-label">Notas</label>
+                                {{ form.notes }}
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'workout_detail' workout.id %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-excel">
+                                <i class="bi bi-check-circle me-1"></i>Agregar Ejercicio
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

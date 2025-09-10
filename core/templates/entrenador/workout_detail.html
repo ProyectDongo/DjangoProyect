@@ -1,0 +1,94 @@
+<!-- entrenador/workout_detail.html -->
+{% extends 'base.html' %}
+{% block title %}Entrenamiento: {{ workout.title }}{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-dumbbell me-2"></i>{{ workout.title }}
+            </h1>
+            <p class="text-muted mb-0">Plan: {{ workout.plan.name }} | Semana {{ workout.week_number }}, Día {{ workout.day_of_week }}</p>
+        </div>
+        <div>
+            <a href="{% url 'trainer_plan_detail' workout.plan.id %}" class="btn btn-sm btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i>Volver al Plan
+            </a>
+            <a href="{% url 'edit_workout' workout.id %}" class="btn btn-sm btn-outline-secondary me-2">
+                <i class="bi bi-pencil me-1"></i>Editar Entrenamiento
+            </a>
+            <a href="{% url 'add_exercise' workout.id %}" class="btn btn-sm btn-excel">
+                <i class="bi bi-plus-circle me-1"></i>Agregar Ejercicio
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Ejercicios</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered excel-table m-0">
+                    <thead class="excel-header">
+                        <tr>
+                            <th>Orden</th>
+                            <th>Ejercicio</th>
+                            <th>Series</th>
+                            <th>Reps</th>
+                            <th>RIR</th>
+                            <th>RPE</th>
+                            <th>Descanso</th>
+                            <th>Notas</th>
+                            <th>Video</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ex in exercises %}
+                        <tr>
+                            <td class="excel-cell text-center">{{ ex.order }}</td>
+                            <td class="excel-cell">{{ ex.exercise.name }}</td>
+                            <td class="excel-cell text-center">{{ ex.sets }}</td>
+                            <td class="excel-cell text-center">{{ ex.reps_target }}</td>
+                            <td class="excel-cell text-center">{{ ex.rir_target }}</td>
+                            <td class="excel-cell text-center">{{ ex.rpe_target }}</td>
+                            <td class="excel-cell text-center">{{ ex.rest_period_seconds }}s</td>
+                            <td class="excel-cell"><small>{{ ex.notes|truncatewords:5 }}</small></td>
+                            <td class="excel-cell text-center">
+                                {% if ex.exercise.video_url %}
+                                <a href="{{ ex.exercise.video_url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-play-btn"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                            <td class="excel-cell text-center">
+                                {% if ex.get_last_log %}
+                                <span class="badge bg-success">Completado</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Pendiente</span>
+                                {% endif %}
+                            </td>
+                            <td class="excel-cell text-center">
+                                <a href="{% url 'edit_workout_exercise' ex.id %}" class="btn btn-sm btn-outline-secondary me-1">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'delete_workout_exercise' ex.id %}" class="btn btn-sm btn-outline-danger me-1">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                {% if ex.get_last_log %}
+                                <a href="{% url 'view_log' ex.get_last_log.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

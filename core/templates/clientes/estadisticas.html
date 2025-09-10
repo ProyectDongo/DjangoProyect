@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Estadísticas Completas{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">
+        <i class="bi bi-graph-up me-2"></i>Estadísticas Completas
+    </h1>
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Registros de Ejercicios</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered excel-table m-0">
+                    <thead class="excel-header">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Ejercicio</th>
+                            <th>Peso (kg)</th>
+                            <th>Reps</th>
+                            <th>RIR</th>
+                            <th>RPE</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td class="excel-cell">{{ log.date_completed|date:"d/m/Y" }}</td>
+                            <td class="excel-cell">{{ log.workout_exercise.exercise.name }}</td>
+                            <td class="excel-cell">{{ log.weight_lifted_kg }}</td>
+                            <td class="excel-cell">{{ log.reps_completed }}</td>
+                            <td class="excel-cell">{{ log.rir_actual }}</td>
+                            <td class="excel-cell">{{ log.rpe_actual }}</td>
+                            <td class="excel-cell">{{ log.get_status_display }}</td>
+                            <td class="excel-cell">
+                                <a href="{% url 'view_log' log.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">No hay registros disponibles.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

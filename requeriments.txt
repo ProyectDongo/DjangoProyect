@@ -1,0 +1,10 @@
+Django~=4.1.0
+djangorestframework  
+numpy  
+pandas  
+scikit-learn  
+sympy  
+psycopg2-binary  
+pytest  
+pytest-django
+mysqlclient

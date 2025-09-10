@@ -1,0 +1,32 @@
+<!-- entrenador/actualizar_calentamiento.html -->
+{% extends 'base.html' %}
+{% block title %}{% if form.instance.id %}Editar{% else %}Crear{% endif %} Calentamiento{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="bi bi-fire me-1"></i>{% if form.instance.id %}Editar{% else %}Crear{% endif %} Calentamiento
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'trainer_dashboard' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-excel">
+                                <i class="bi bi-check-circle me-1"></i>Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

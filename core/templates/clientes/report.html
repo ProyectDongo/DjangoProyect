@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% block title %}Registrar Ejercicio{% endblock %}
+{% block content %}
+<div class="container">
+<!-- Tabla RPE/RIR de referencia -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Referencia RPE/RIR</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered rpe-table excel-table m-0">
+                            <thead class="excel-header">
+                                <tr>
+                                    <th>ESCALA RPE</th>
+                                    <th>¿QUÉ SIGNIFICA? RPE</th>
+                                    <th>ESCALA RIR</th>
+                                    <th>¿QUÉ SIGNIFICA? RIR</th>
+                                    <th>RELACIÓN ENTRE AMBOS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="excel-cell text-center">10.0</td>
+                                    <td class="excel-cell">Máximo esfuerzo, no puede hacer más repeticiones</td>
+                                    <td class="excel-cell text-center">0.0</td>
+                                    <td class="excel-cell">No queda ninguna repetición (fallo)</td>
+                                    <td class="excel-cell text-center">RPE 10 = RIR 0</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">9.5</td>
+                                    <td class="excel-cell">Podría haber hecho 0-1 repetición más</td>
+                                    <td class="excel-cell text-center">0-1</td>
+                                    <td class="excel-cell">Casi al fallo, máxima exigencia</td>
+                                    <td class="excel-cell text-center">RPE 9.5 = RIR 0-1</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">9.0</td>
+                                    <td class="excel-cell">Te quedan 1 repetición más</td>
+                                    <td class="excel-cell text-center">1.0</td>
+                                    <td class="excel-cell">Te queda 1 repetición en reserva</td>
+                                    <td class="excel-cell text-center">RPE 9 = RIR 1</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">8.5</td>
+                                    <td class="excel-cell">Te quedan 1-2 repeticiones más</td>
+                                    <td class="excel-cell text-center">1-2</td>
+                                    <td class="excel-cell">Muy cerca del fallo, pero sin alcanzarlo</td>
+                                    <td class="excel-cell text-center">RPE 8.5 = RIR 1-2</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">8.0</td>
+                                    <td class="excel-cell">Te quedan 2 repeticiones más</td>
+                                    <td class="excel-cell text-center">2.0</td>
+                                    <td class="excel-cell">Te quedan 2 repeticiones antes del fallo</td>
+                                    <td class="excel-cell text-center">RPE 8 = RIR 2</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">7.5</td>
+                                    <td class="excel-cell">Te quedan 2-3 repeticiones más</td>
+                                    <td class="excel-cell text-center">2-3</td>
+                                    <td class="excel-cell">Entrenamiento moderado</td>
+                                    <td class="excel-cell text-center">RPE 7.5 = RIR 2-3</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">7.0</td>
+                                    <td class="excel-cell">Te quedan 3 repeticiones más</td>
+                                    <td class="excel-cell text-center">3.0</td>
+                                    <td class="excel-cell">Mucho margen, esfuerzo bajo</td>
+                                    <td class="excel-cell text-center">RPE 7 = RIR 3</td>
+                                </tr>
+                                <tr>
+                                    <td class="excel-cell text-center">6 o MENOS</td>
+                                    <td class="excel-cell">Calentamiento o muy poca carga</td>
+                                    <td class="excel-cell text-center">4 o MÁS</td>
+                                    <td class="excel-cell">Sería muy fácil</td>
+                                    <td class="excel-cell text-center">RPE 6 = RIR 4+</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="bi bi-pencil-square me-2"></i>Registrar Ejercicio
+                    </h1>
+                    <p class="text-muted mb-0">{{ workout_exercise.exercise.name }} - {{ workout_exercise.workout.title }}</p>
+                </div>
+                <a href="{% url 'view_plan' workout_exercise.workout.plan.id %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Volver
+                </a>
+            </div>
+
+            {% if workout_exercise.exercise.video_url %}
+            <div class="mb-4">
+                <h6 class="text-primary">Video del Ejercicio</h6>
+                <a href="{{ workout_exercise.exercise.video_url }}" target="_blank" class="btn btn-primary">
+                    <i class="bi bi-play-btn me-1"></i>Ver Video
+                </a>
+            </div>
+            {% endif %}
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Detalles del Ejercicio</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <h6 class="text-primary">Objetivo del Entrenador</h6>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p class="mb-1"><strong>Series:</strong> {{ workout_exercise.sets }}</p>
+                                        <p class="mb-1"><strong>Reps:</strong> {{ workout_exercise.reps_target }}</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="mb-1"><strong>RIR:</strong> {{ workout_exercise.rir_target }}</p>
+                                        <p class="mb-1"><strong>RPE:</strong> {{ workout_exercise.rpe_target }}</p>
+                                    </div>
+                                </div>
+                                {% if workout_exercise.notes %}
+                                <p class="mt-2"><strong>Notas:</strong> {{ workout_exercise.notes }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100">
+                                <h6 class="text-success">Tu Mejor Registro Anterior</h6>
+                                {% if best_log %}
+                                <p class="mb-1"><strong>Peso:</strong> {{ best_log.weight_lifted_kg }} kg</p>
+                                <p class="mb-1"><strong>Reps:</strong> {{ best_log.reps_completed }}</p>
+                                <p class="mb-1"><strong>RIR:</strong> {{ best_log.rir_actual }}</p>
+                                <p class="mb-0"><strong>Fecha:</strong> {{ best_log.date_completed|date:"d/m/Y" }}</p>
+                                {% else %}
+                                <p class="text-muted mb-0">No hay registros anteriores</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_weight_lifted_kg" class="form-label">Peso (kg)</label>
+                                {{ form.weight_lifted_kg }}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_reps_completed" class="form-label">Repeticiones Completadas</label>
+                                {{ form.reps_completed }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_rir_actual" class="form-label">RIR Real</label>
+                                {{ form.rir_actual }}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_rpe_actual" class="form-label">RPE Real</label>
+                                {{ form.rpe_actual }}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_notes" class="form-label">Notas</label>
+                            {{ form.notes }}
+                        </div>
+                        <div class="mb-4">
+                            <label for="id_video_log" class="form-label">Video (opcional)</label>
+                            {{ form.video_log }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_status" class="form-label">Estado</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'view_plan' workout_exercise.workout.plan.id %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-excel">
+                                <i class="bi bi-send me-1"></i>Enviar Reporte
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            
+        </div>
+    </div>
+</div>
+{% endblock %}
