@@ -14,6 +14,16 @@ from .forms import ClientCreationForm
 from django.utils.crypto import get_random_string
 
 
+
+
+#----------------------------Vistas para el Dashboard del Entrenador - El Centro de Control---------------------------------
+
+#Aquí comencé con las vistas exclusivas para entrenadores. La primera es trainer_dashboard, 
+#que actúa como el "panel de control" principal. Verifico el rol del usuario para redirigir si no es 'ENTRENADOR'. 
+#Luego, consulto planes, clientes y métricas como sesiones semanales usando filtros eficientes en Querysets. Calculo 
+#datos adicionales en un loop para cada cliente (planes activos y última sesión) y preparo un contexto con todo,
+#incluyendo calentamientos divididos por tipo. Esto renderiza una plantilla rica en datos.python
+
 @login_required
 def trainer_dashboard(request):
     if request.user.role != 'ENTRENADOR':
@@ -50,8 +60,9 @@ def trainer_dashboard(request):
     return render(request, 'entrenador/entrenador.html', context)
 
 
-
-
+#Lo diseñé así para que sea performant: evito consultas N+1 usando prefetch si es necesario 
+# (aunque aquí es directo). La vista workout_detail es similar pero enfocada en un workout específico, 
+# ordenando ejercicios y asegurando propiedad.
 
 @login_required
 def workout_detail(request, workout_id):
@@ -66,7 +77,13 @@ def workout_detail(request, workout_id):
     return render(request, 'entrenador/workout_detail.html', context)
 
 
+#----------------------- Creación de Clientes - Facilitando la Onboarding --------------------------------------------
 
+
+#Creación de Clientes - Facilitando la Onboarding
+#Para create_client, permito que entrenadores o nutricionistas creen clientes nuevos. Uso un 
+# formulario para validar, asigno el rol y profesional, genero una contraseña temporal segura y envío mensajes de éxito. 
+# Esto integra con el dashboard para un flujo suave.
 
 @login_required
 def create_client(request):
@@ -96,15 +113,13 @@ def create_client(request):
 
 
 
+#-------------------------------#Gestión de Planes - El Corazón de la App--------------------------------------------
 
 
-
-
-
-
-
-
-
+#create_plan es análoga pero para planes: limito clientes disponibles y asigno el trainer actual. 
+# trainer_plan_detail calcula progreso basado en logs 
+# (contando cualquier log, no solo 'completed' 
+# para flexibilidad). edit_plan permite actualizaciones simples.
 
 @login_required
 def create_plan(request):
@@ -131,14 +146,6 @@ def create_plan(request):
 
 
 
-
-
-
-
-
-
-
-
 @login_required
 def trainer_plan_detail(request, plan_id):
     if request.user.role != 'ENTRENADOR':
@@ -148,8 +155,8 @@ def trainer_plan_detail(request, plan_id):
     
     total_exercises = WorkoutExercise.objects.filter(workout__plan=plan).count()
     completed_exercises = ExerciseLog.objects.filter(
-        workout_exercise__workout__plan=plan, status='completed'
-    ).count()
+    workout_exercise__workout__plan=plan
+).count()
     progress = round((completed_exercises / total_exercises * 100), 2) if total_exercises > 0 else 0
     context = {
         'plan': plan,
@@ -179,7 +186,16 @@ def edit_plan(request, plan_id):
     return render(request, 'entrenador/edit_plan.html', {'form': form, 'plan': plan})
 
 
+#-------------------------------------------------------------------------------------------------------------------
 
+
+#------------------------Gestión de Ejercicios y Workouts - Detalles Granulares--------------------------------
+
+#Vistas como edit_workout_exercise,
+#  add_workout, edit_workout, 
+# add_exercise y 
+# delete_workout_exercise 
+# permiten CRUD en workouts y ejercicios. Siempre verifico propiedad y uso forms para validación.
 
 @login_required
 def edit_workout_exercise(request, exercise_id):
@@ -272,8 +288,11 @@ def delete_workout_exercise(request, exercise_id):
     return redirect('workout_detail', workout_id=workout_id)
 
 
+#-------------------------------------------------------------------------------------------------------------------
 
+#------------------------Gestión de Calentamientos - Recursos para Clientes--------------------------------
 
+#update_warmup maneja creación/edición de calentamientos, opcional por ID.
 
 @login_required
 def update_warmup(request, warmup_id=None):
@@ -294,6 +313,11 @@ def update_warmup(request, warmup_id=None):
 
 
 
+#-------------------------------Vistas para Clientes ---------------------------------
+
+#Para clientes, client_dashboard calcula métricas similares pero personalizadas, 
+# como consistencia basada en workouts completos. client_statistics lista logs, 
+# view_plan muestra planes con progreso, y log_exercise permite registrar con email al trainer.
 
 @login_required
 def client_dashboard(request):
@@ -369,7 +393,7 @@ def view_plan(request, plan_id):
     workouts = plan.workouts.all().order_by('week_number', 'day_of_week')
     total_exercises = WorkoutExercise.objects.filter(workout__plan=plan).count()
     completed_exercises = ExerciseLog.objects.filter(
-        workout_exercise__workout__plan=plan, status='completed'
+        workout_exercise__workout__plan=plan
     ).count()
     progress = round((completed_exercises / total_exercises * 100), 2) if total_exercises > 0 else 0
     completed_workouts = 0
@@ -433,7 +457,12 @@ def log_exercise(request, workout_exercise_id):
     return render(request, 'clientes/report.html', context)
 
 
+#-------------------------------------------------------------------------------------------------------------------
 
+#------------------------Vistas Adicionales - Logs y Nutricionistas --------------------------------
+
+#view_log verifica permisos para ver detalles. nutritionist_dashboard es un placeholder.
+#  client_logs lista logs por cliente para entrenadores.
 
 @login_required
 def view_log(request, log_id):
@@ -446,7 +475,7 @@ def view_log(request, log_id):
         messages.error(request, "No tienes permiso para ver este registro.")
         return redirect('inicio')
     context = {'log': log}
-    return render(request, 'entrenamiento/view_log.html', context)
+    return render(request, 'entrenador/view_log.html', context)
 
 
 
@@ -457,3 +486,17 @@ def nutritionist_dashboard(request):
         return redirect('inicio')
     # Implement as needed
     return render(request, 'nutricionistas/nutricionistas.html')
+
+
+
+@login_required
+def client_logs(request, client_id):
+    if request.user.role != 'ENTRENADOR':
+        return redirect('inicio')
+    client = get_object_or_404(User, id=client_id, assigned_professional=request.user)
+    logs = ExerciseLog.objects.filter(client=client).order_by('-date_completed')
+    context = {
+        'client': client,
+        'logs': logs,
+    }
+    return render(request, 'entrenador/client_logs.html', context)

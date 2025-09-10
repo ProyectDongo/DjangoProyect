@@ -67,7 +67,7 @@ class WorkoutExercise(models.Model):
         return f"{self.sets}x{self.reps_target} de {self.exercise.name}"
     
     def get_last_log(self):
-        ExerciseLog.objects.filter(workout_exercise=self).order_by('-date_completed').first()
+        return ExerciseLog.objects.filter(workout_exercise=self).order_by('-date_completed').first()
 
 
 

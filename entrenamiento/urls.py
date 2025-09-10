@@ -4,7 +4,7 @@ from .views import (
     trainer_dashboard, create_plan, add_workout, add_exercise, client_dashboard,
     view_plan, log_exercise, update_warmup, create_client, trainer_plan_detail,
     workout_detail, edit_plan, edit_workout, edit_workout_exercise, delete_workout_exercise,
-    client_statistics, view_log,
+    client_statistics, view_log,client_logs
 )
 
 urlpatterns = [
@@ -29,4 +29,5 @@ urlpatterns = [
     path('delete_workout_exercise/<int:exercise_id>/', delete_workout_exercise, name='delete_workout_exercise'),
     path('client_statistics/', client_statistics, name='client_statistics'),
     path('view_log/<int:log_id>/', view_log, name='view_log'),
+    path('client/<int:client_id>/logs/', client_logs, name='client_logs'),
 ]

@@ -24,6 +24,7 @@
         <a href="{% url 'create_exercise' %}" class="btn btn-excel">  
             <i class="bi bi-dumbbell me-1"></i>Crear Ejercicio
         </a>
+        
             </div>
 
     <!-- Fila de estadísticas -->
@@ -186,6 +187,9 @@
                                         <a href="#" class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-person-lines-fill"></i>
                                         </a>
+                                        <a href="{% url 'client_logs' client.id %}" class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-file-earmark-text"></i> Ver Informes
+                                    </a>
                                     </td>
                                 </tr>
                                 {% endfor %}

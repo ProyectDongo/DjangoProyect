@@ -140,6 +140,8 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'static')]
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -153,3 +155,7 @@ LOGOUT_REDIRECT_URL = "login/"
 # Indica que la página de login está en la raíz('/')
 LOGIN_URL = 'login/'
 
+
+# Configuración de sesiones
+SESSION_COOKIE_AGE = 3600  # Sesiones expiran en 1 hora
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Sesiones cierran al cerrar el navegador

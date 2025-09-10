@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Logs de {{ client.username }}{% endblock %}
+{% block content %}
+<div class="container-fluid">
+<a href="{% url 'trainer_dashboard' %}" class="btn btn-sm btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i>Volver
+            </a>
+    <h1 class="h3 mb-4">Informes de {{ client.username }}</h1>
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Todos los Registros</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered excel-table">
+                    <thead>
+                        <tr>
+                            <th>Ejercicio</th>
+                            <th>Fecha</th>
+                            <th>Peso (kg)</th>
+                            <th>Reps</th>
+                            <th>RIR/RPE</th>
+                            <th>Notas</th>
+                            <th>Video</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.workout_exercise.exercise.name }}</td>
+                            <td>{{ log.date_completed|date:"d/m/Y" }}</td>
+                            <td>{{ log.weight_lifted_kg }}</td>
+                            <td>{{ log.reps_completed }}</td>
+                            <td>{{ log.rir_actual }} / {{ log.rpe_actual }}</td>
+                            <td>{{ log.notes|truncatewords:10 }}</td>
+                            <td>
+                                {% if log.video_log %}
+                                <a href="{{ log.video_log.url }}" target="_blank">Ver Video</a>
+                                {% else %}
+                                No enviado
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-{% if log.status == 'completed' %}success{% elif log.status == 'half' %}warning{% else %}danger{% endif %}">{{ log.get_status_display }}</span></td>
+                            <td><a href="{% url 'view_log' log.id %}" class="btn btn-sm btn-outline-primary">Ver Detalle</a></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="9">No hay informes para este cliente.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

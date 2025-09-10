@@ -19,7 +19,8 @@ from django.urls import path, include
 from core.views import inicio,login_view
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
-
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', inicio , name="inicio"),
@@ -31,3 +32,5 @@ urlpatterns = [
 
 
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
