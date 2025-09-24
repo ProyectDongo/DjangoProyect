@@ -1,9 +1,34 @@
-# entrenamiento/models.py
 from django.db import models
-from django.conf import settings  # Importa esto para AUTH_USER_MODEL
+from django.conf import settings  
 from django.utils.translation import gettext_lazy as _
-from ejercicios.models import Exercise  # Import desde app ejercicios (sin cambios)
-from datetime import timedelta  # Agregado para cálculos de fecha
+from datetime import timedelta  
+
+
+
+class Exercise(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Nombre del Ejercicio"))
+    description = models.TextField(blank=True, verbose_name=_("Descripción"))
+    video_url = models.URLField(blank=True, verbose_name=_("URL del Video"))
+    muscle_group = models.CharField(max_length=100, blank=True, verbose_name=_("Grupo Muscular"))
+    equipment = models.CharField(max_length=100, blank=True, verbose_name=_("Equipamiento"))
+
+    def __str__(self):
+        return self.name
+    
+
+
+class Warmup(models.Model):
+    name = models.CharField(max_length=100, verbose_name=_("Nombre del Calentamiento"))
+    series_reps = models.CharField(max_length=50, verbose_name=_("Series/Reps"))
+    notes = models.TextField(blank=True, verbose_name=_("Notas"))
+    video_url = models.URLField(blank=True, verbose_name=_("URL del Video"))
+    type = models.CharField(max_length=20, choices=[('inferior', 'Tren Inferior'), ('superior', 'Tren Superior')], verbose_name=_("Tipo"))
+
+    def __str__(self):
+        return self.name
+    
+
+
 
 class TrainingPlan(models.Model):
     trainer = models.ForeignKey(
@@ -27,6 +52,7 @@ class TrainingPlan(models.Model):
     def __str__(self):
         return f"Plan '{self.name}' para {self.client.username}"
     
+
 
 
 class Workout(models.Model):
@@ -69,9 +95,6 @@ class WorkoutExercise(models.Model):
     def get_last_log(self):
         return ExerciseLog.objects.filter(workout_exercise=self).order_by('-date_completed').first()
 
-
-
-
 class ExerciseLog(models.Model):
     STATUS_CHOICES = [
         ('completed', 'Completado'),
@@ -90,7 +113,12 @@ class ExerciseLog(models.Model):
     rir_actual = models.PositiveIntegerField(null=True, blank=True, verbose_name=_("RIR Real"))
     rpe_actual = models.PositiveIntegerField(null=True, blank=True, verbose_name=_("RPE Real"))
     notes = models.TextField(blank=True, verbose_name=_("Notas del Cliente"))
-    video_log = models.FileField(upload_to='logs/videos/', null=True, blank=True, verbose_name=_("Video de Registro"))
+    video_log = models.FileField(
+        upload_to='logs/videos/',
+        null=True,
+        blank=True,
+        verbose_name=_("Video de Registro")
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='completed', verbose_name=_("Estado"))
 
     def __str__(self):

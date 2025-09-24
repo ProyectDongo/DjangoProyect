@@ -16,11 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from core.views import inicio,login_view
+from core.views import inicio,login_view, CustomPasswordChangeView
+from django.contrib.auth.views import PasswordChangeDoneView
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth.decorators import login_required
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', inicio , name="inicio"),
@@ -28,7 +31,11 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('entrenamiento/', include('entrenamiento.urls')),
 
-    path('ejercicios/', include('ejercicios.urls')),
+
+    path('change-password/', CustomPasswordChangeView.as_view(), name='cambiar_contraseña'),
+    path('change-password/done/', auth_views.PasswordChangeDoneView.as_view(template_name='contraseñas/exito.html'), name='exito_cambio_contraseña'),
+
+    
 
 
 ]

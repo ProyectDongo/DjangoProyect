@@ -1,7 +1,8 @@
 from django import forms
-from .models import TrainingPlan, Workout, WorkoutExercise, ExerciseLog
-from ejercicios.models import Exercise, Warmup
+from .models import TrainingPlan, Workout, WorkoutExercise, ExerciseLog, Warmup, Exercise
 from core.models import User
+from django.utils.translation import gettext_lazy as _
+
 
 class TrainingPlanForm(forms.ModelForm):
     class Meta:
@@ -66,14 +67,23 @@ class ExerciseLogForm(forms.ModelForm):
     class Meta:
         model = ExerciseLog
         fields = ['weight_lifted_kg', 'reps_completed', 'rir_actual', 'rpe_actual', 'notes', 'video_log', 'status']
+        labels = {
+            'weight_lifted_kg': _("Peso Levantado (kg)"),
+            'reps_completed': _("Repeticiones Completadas"),
+            'rir_actual': _("RIR Real"),
+            'rpe_actual': _("RPE Real"),
+            'notes': _("Notas del Cliente"),
+            'video_log': _("Video de Registro"),
+            'status': _("Estado"),
+        }
         widgets = {
-            'weight_lifted_kg': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 0.1}),
-            'reps_completed': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
-            'rir_actual': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
-            'rpe_actual': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 10}),
+            'weight_lifted_kg': forms.NumberInput(attrs={'class': 'form-control'}),
+            'reps_completed': forms.NumberInput(attrs={'class': 'form-control'}),
+            'rir_actual': forms.NumberInput(attrs={'class': 'form-control'}),
+            'rpe_actual': forms.NumberInput(attrs={'class': 'form-control'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            
-            'status': forms.Select()
+            'video_log': forms.FileInput(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class WarmupForm(forms.ModelForm):
@@ -100,4 +110,28 @@ class ClientCreationForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'password': forms.PasswordInput(attrs={'class': 'form-control'}),
+        }
+
+
+
+
+
+
+class ExerciseForm(forms.ModelForm):
+    class Meta:
+        model = Exercise
+        fields = ['name', 'description', 'video_url', 'muscle_group', 'equipment']
+        labels = {
+            'name': _("Nombre del Ejercicio"),
+            'description': _("Descripción"),
+            'video_url': _("URL del Video"),
+            'muscle_group': _("Grupo Muscular"),
+            'equipment': _("Equipamiento"),
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'video_url': forms.URLInput(attrs={'class': 'form-control'}),
+            'muscle_group': forms.TextInput(attrs={'class': 'form-control'}),
+            'equipment': forms.TextInput(attrs={'class': 'form-control'}),
         }

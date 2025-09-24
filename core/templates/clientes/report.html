@@ -1,196 +1,394 @@
 {% extends 'base.html' %}
 {% block title %}Registrar Ejercicio{% endblock %}
 {% block content %}
-<div class="container">
-<!-- Tabla RPE/RIR de referencia -->
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Referencia RPE/RIR</h6>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-bordered rpe-table excel-table m-0">
-                            <thead class="excel-header">
-                                <tr>
-                                    <th>ESCALA RPE</th>
-                                    <th>¿QUÉ SIGNIFICA? RPE</th>
-                                    <th>ESCALA RIR</th>
-                                    <th>¿QUÉ SIGNIFICA? RIR</th>
-                                    <th>RELACIÓN ENTRE AMBOS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="excel-cell text-center">10.0</td>
-                                    <td class="excel-cell">Máximo esfuerzo, no puede hacer más repeticiones</td>
-                                    <td class="excel-cell text-center">0.0</td>
-                                    <td class="excel-cell">No queda ninguna repetición (fallo)</td>
-                                    <td class="excel-cell text-center">RPE 10 = RIR 0</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">9.5</td>
-                                    <td class="excel-cell">Podría haber hecho 0-1 repetición más</td>
-                                    <td class="excel-cell text-center">0-1</td>
-                                    <td class="excel-cell">Casi al fallo, máxima exigencia</td>
-                                    <td class="excel-cell text-center">RPE 9.5 = RIR 0-1</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">9.0</td>
-                                    <td class="excel-cell">Te quedan 1 repetición más</td>
-                                    <td class="excel-cell text-center">1.0</td>
-                                    <td class="excel-cell">Te queda 1 repetición en reserva</td>
-                                    <td class="excel-cell text-center">RPE 9 = RIR 1</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">8.5</td>
-                                    <td class="excel-cell">Te quedan 1-2 repeticiones más</td>
-                                    <td class="excel-cell text-center">1-2</td>
-                                    <td class="excel-cell">Muy cerca del fallo, pero sin alcanzarlo</td>
-                                    <td class="excel-cell text-center">RPE 8.5 = RIR 1-2</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">8.0</td>
-                                    <td class="excel-cell">Te quedan 2 repeticiones más</td>
-                                    <td class="excel-cell text-center">2.0</td>
-                                    <td class="excel-cell">Te quedan 2 repeticiones antes del fallo</td>
-                                    <td class="excel-cell text-center">RPE 8 = RIR 2</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">7.5</td>
-                                    <td class="excel-cell">Te quedan 2-3 repeticiones más</td>
-                                    <td class="excel-cell text-center">2-3</td>
-                                    <td class="excel-cell">Entrenamiento moderado</td>
-                                    <td class="excel-cell text-center">RPE 7.5 = RIR 2-3</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">7.0</td>
-                                    <td class="excel-cell">Te quedan 3 repeticiones más</td>
-                                    <td class="excel-cell text-center">3.0</td>
-                                    <td class="excel-cell">Mucho margen, esfuerzo bajo</td>
-                                    <td class="excel-cell text-center">RPE 7 = RIR 3</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">6 o MENOS</td>
-                                    <td class="excel-cell">Calentamiento o muy poca carga</td>
-                                    <td class="excel-cell text-center">4 o MÁS</td>
-                                    <td class="excel-cell">Sería muy fácil</td>
-                                    <td class="excel-cell text-center">RPE 6 = RIR 4+</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="h3 mb-0 text-gray-800">
+<div class="container py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+                <div class="mb-3 mb-md-0">
+                    <h1 class="h2 mb-1 text-gradient">
                         <i class="bi bi-pencil-square me-2"></i>Registrar Ejercicio
                     </h1>
                     <p class="text-muted mb-0">{{ workout_exercise.exercise.name }} - {{ workout_exercise.workout.title }}</p>
                 </div>
-                <a href="{% url 'view_plan' workout_exercise.workout.plan.id %}" class="btn btn-sm btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i>Volver
+                <a href="{% url 'view_plan' workout_exercise.workout.plan.id %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Volver al Plan
                 </a>
             </div>
+        </div>
+    </div>
 
-            {% if workout_exercise.exercise.video_url %}
-            <div class="mb-4">
-                <h6 class="text-primary">Video del Ejercicio</h6>
-                <a href="{{ workout_exercise.exercise.video_url }}" target="_blank" class="btn btn-primary">
-                    <i class="bi bi-play-btn me-1"></i>Ver Video
-                </a>
-            </div>
-            {% endif %}
-
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Detalles del Ejercicio</h6>
+    <!-- Video Section -->
+    {% if workout_exercise.exercise.video_url %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-play-circle-fill text-primary fs-4 me-3"></i>
+                        <div>
+                            <h6 class="mb-1">Video del Ejercicio</h6>
+                            <p class="mb-0 text-muted small">Revisa la técnica correcta para este ejercicio</p>
+                        </div>
+                        <a href="{{ workout_exercise.exercise.video_url }}" target="_blank" class="btn btn-primary btn-sm ms-auto">
+                            <i class="bi bi-play-btn me-1"></i>Ver Video
+                        </a>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row mb-4">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Exercise Details Column -->
+        <div class="col-lg-8 mb-4">
+            <!-- Exercise Details Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light py-3">
+                    <h5 class="mb-0 text-primary">
+                        <i class="bi bi-clipboard-data me-2"></i>Detalles del Ejercicio
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <!-- Trainer Goals -->
                         <div class="col-md-6">
-                            <div class="border rounded p-3 h-100">
-                                <h6 class="text-primary">Objetivo del Entrenador</h6>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <p class="mb-1"><strong>Series:</strong> {{ workout_exercise.sets }}</p>
-                                        <p class="mb-1"><strong>Reps:</strong> {{ workout_exercise.reps_target }}</p>
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="bi bi-bullseye me-2"></i>Objetivo del Entrenador
+                                    </h6>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-primary me-2">S</span>
+                                                <span class="small">{{ workout_exercise.sets }} Series</span>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-primary me-2">R</span>
+                                                <span class="small">{{ workout_exercise.reps_target }} Reps</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-warning me-2">RIR</span>
+                                                <span class="small">{{ workout_exercise.rir_target }}</span>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-info me-2">RPE</span>
+                                                <span class="small">{{ workout_exercise.rpe_target }}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-6">
-                                        <p class="mb-1"><strong>RIR:</strong> {{ workout_exercise.rir_target }}</p>
-                                        <p class="mb-1"><strong>RPE:</strong> {{ workout_exercise.rpe_target }}</p>
+                                    {% if workout_exercise.notes %}
+                                    <div class="mt-3 pt-2 border-top">
+                                        <p class="small mb-0"><strong>Notas:</strong> {{ workout_exercise.notes }}</p>
                                     </div>
+                                    {% endif %}
                                 </div>
-                                {% if workout_exercise.notes %}
-                                <p class="mt-2"><strong>Notas:</strong> {{ workout_exercise.notes }}</p>
-                                {% endif %}
                             </div>
                         </div>
+                        
+                        <!-- Best Record -->
                         <div class="col-md-6">
-                            <div class="border rounded p-3 h-100">
-                                <h6 class="text-success">Tu Mejor Registro Anterior</h6>
-                                {% if best_log %}
-                                <p class="mb-1"><strong>Peso:</strong> {{ best_log.weight_lifted_kg }} kg</p>
-                                <p class="mb-1"><strong>Reps:</strong> {{ best_log.reps_completed }}</p>
-                                <p class="mb-1"><strong>RIR:</strong> {{ best_log.rir_actual }}</p>
-                                <p class="mb-0"><strong>Fecha:</strong> {{ best_log.date_completed|date:"d/m/Y" }}</p>
-                                {% else %}
-                                <p class="text-muted mb-0">No hay registros anteriores</p>
-                                {% endif %}
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title text-success mb-3">
+                                        <i class="bi bi-trophy me-2"></i>Tu Mejor Registro
+                                    </h6>
+                                    {% if best_log %}
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-success me-2">W</span>
+                                                <span class="small">{{ best_log.weight_lifted_kg }} kg</span>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-success me-2">R</span>
+                                                <span class="small">{{ best_log.reps_completed }} Reps</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-warning me-2">RIR</span>
+                                                <span class="small">{{ best_log.rir_actual }}</span>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-secondary me-2">D</span>
+                                                <span class="small">{{ best_log.date_completed|date:"d/m/Y" }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-3">
+                                        <i class="bi bi-inbox text-muted fs-1"></i>
+                                        <p class="text-muted mt-2 mb-0">No hay registros anteriores</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
+            <!-- Exercise Log Form -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light py-3">
+                    <h5 class="mb-0 text-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Registrar Ejercicio
+                    </h5>
+                </div>
+                <div class="card-body p-4">
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <div class="row mb-3">
+                        <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label for="id_weight_lifted_kg" class="form-label">Peso (kg)</label>
-                                {{ form.weight_lifted_kg }}
+                                <label for="id_weight_lifted_kg" class="form-label fw-semibold">
+                                    <i class="bi bi-speedometer2 me-1"></i>Peso (kg)
+                                </label>
+                                <div class="input-group">
+                                    {{ form.weight_lifted_kg }}
+                                    <span class="input-group-text">kg</span>
+                                </div>
                             </div>
                             <div class="col-md-6">
-                                <label for="id_reps_completed" class="form-label">Repeticiones Completadas</label>
+                                <label for="id_reps_completed" class="form-label fw-semibold">
+                                    <i class="bi bi-arrow-repeat me-1"></i>Repeticiones Completadas
+                                </label>
                                 {{ form.reps_completed }}
                             </div>
                         </div>
-                        <div class="row mb-3">
+                        <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label for="id_rir_actual" class="form-label">RIR Real</label>
+                                <label for="id_rir_actual" class="form-label fw-semibold">
+                                    <i class="bi bi-activity me-1"></i>RIR Real
+                                </label>
                                 {{ form.rir_actual }}
                             </div>
                             <div class="col-md-6">
-                                <label for="id_rpe_actual" class="form-label">RPE Real</label>
+                                <label for="id_rpe_actual" class="form-label fw-semibold">
+                                    <i class="bi bi-graph-up me-1"></i>RPE Real
+                                </label>
                                 {{ form.rpe_actual }}
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="id_notes" class="form-label">Notas</label>
+                        <div class="mb-4">
+                            <label for="id_notes" class="form-label fw-semibold">
+                                <i class="bi bi-chat-text me-1"></i>Notas
+                            </label>
                             {{ form.notes }}
                         </div>
                         <div class="mb-4">
-                            <label for="id_video_log" class="form-label">Video (opcional)</label>
+                            <label for="id_video_log" class="form-label fw-semibold">
+                                <i class="bi bi-camera-video me-1"></i>Video (opcional)
+                            </label>
                             {{ form.video_log }}
                         </div>
-                        <div class="mb-3">
-                            <label for="id_status" class="form-label">Estado</label>
+                        <div class="mb-4">
+                            <label for="id_status" class="form-label fw-semibold">
+                                <i class="bi bi-check-circle me-1"></i>Estado
+                            </label>
                             {{ form.status }}
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'view_plan' workout_exercise.workout.plan.id %}" class="btn btn-secondary">
+                        <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
+                            <a href="{% url 'view_plan' workout_exercise.workout.plan.id %}" class="btn btn-secondary order-2 order-sm-1">
                                 <i class="bi bi-x-circle me-1"></i>Cancelar
                             </a>
-                            <button type="submit" class="btn btn-excel">
+                            <button type="submit" class="btn btn-excel order-1 order-sm-2">
                                 <i class="bi bi-send me-1"></i>Enviar Reporte
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
+        </div>
 
-            
+        <!-- RPE/RIR Reference Column -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+                <div class="card-header bg-light py-3">
+                    <h5 class="mb-0 text-primary">
+                        <i class="bi bi-info-circle me-2"></i>Referencia RPE/RIR
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0 rpe-table">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th class="text-center">RPE</th>
+                                    <th class="text-center">RIR</th>
+                                    <th>Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="exercise-row">
+                                    <td class="text-center fw-bold">10.0</td>
+                                    <td class="text-center fw-bold">0.0</td>
+                                    <td class="small">Máximo esfuerzo, no puede hacer más repeticiones</td>
+                                </tr>
+                                <tr class="exercise-row">
+                                    <td class="text-center fw-bold">9.5</td>
+                                    <td class="text-center fw-bold">0-1</td>
+                                    <td class="small">Podría haber hecho 0-1 repetición más</td>
+                                </tr>
+                                <tr class="exercise-row">
+                                    <td class="text-center fw-bold">9.0</td>
+                                    <td class="text-center fw-bold">1.0</td>
+                                    <td class="small">Te quedan 1 repetición más</td>
+                                </tr>
+                                <tr class="exercise-row">
+                                    <td class="text-center fw-bold">8.5</td>
+                                    <td class="text-center fw-bold">1-2</td>
+                                    <td class="small">Te quedan 1-2 repeticiones más</td>
+                                </tr>
+                                <tr class="exercise-row">
+                                    <td class="text-center fw-bold">8.0</td>
+                                    <td class="text-center fw-bold">2.0</td>
+                                    <td class="small">Te quedan 2 repeticiones más</td>
+                                </tr>
+                                <tr class="exercise-row">
+                                    <td class="text-center fw-bold">7.5</td>
+                                    <td class="text-center fw-bold">2-3</td>
+                                    <td class="small">Te quedan 2-3 repeticiones más</td>
+                                </tr>
+                                <tr class="exercise-row">
+                                    <td class="text-center fw-bold">7.0</td>
+                                    <td class="text-center fw-bold">3.0</td>
+                                    <td class="small">Te quedan 3 repeticiones más</td>
+                                </tr>
+                                <tr class="exercise-row">
+                                    <td class="text-center fw-bold">≤6.0</td>
+                                    <td class="text-center fw-bold">≥4.0</td>
+                                    <td class="small">Calentamiento o muy poca carga</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-3 bg-light border-top">
+                        <p class="small text-muted mb-0">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <strong>RPE</strong> = Percepción Subjetiva del Esfuerzo | 
+                            <strong>RIR</strong> = Repeticiones en Reserva
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Estilos personalizados para mejorar el diseño */
+    .text-gradient {
+        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .card {
+        border-radius: 0.75rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .card-header {
+        border-radius: 0.75rem 0.75rem 0 0 !important;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+    }
+    
+    .btn-excel {
+        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
+        border: none;
+        color: white;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-excel:hover {
+        background: linear-gradient(135deg, #157347 0%, #0b5ed7 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        color: white;
+    }
+    
+    .table th {
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    
+    .table td {
+        font-size: 0.875rem;
+        vertical-align: middle;
+    }
+    
+    .exercise-row {
+        transition: background-color 0.2s ease;
+    }
+    
+    .exercise-row:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.35rem 0.5rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .sticky-top {
+            position: relative !important;
+            top: 0 !important;
+        }
+        
+        .table-responsive {
+            font-size: 0.8rem;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+        
+        .d-flex.flex-column.flex-sm-row .btn {
+            width: auto;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .h2 {
+            font-size: 1.5rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .table th, .table td {
+            padding: 0.5rem;
+        }
+    }
+</style>
 {% endblock %}

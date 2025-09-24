@@ -2,15 +2,18 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import ExerciseLog, TrainingPlan, Workout, WorkoutExercise
-from ejercicios.models import Warmup
+from .models import ExerciseLog, TrainingPlan, Workout, WorkoutExercise, Warmup
 from .forms import TrainingPlanForm, WorkoutForm, WorkoutExerciseForm, ExerciseLogForm, WarmupForm
 from core.models import User
 from django.utils import timezone  
 from datetime import timedelta     
 from django.contrib import messages
-from .forms import ClientCreationForm
+from .forms import ClientCreationForm,ExerciseForm  
 from django.utils.crypto import get_random_string
+import mimetypes
+
+
+
 
 # ====================================================================================================================
 # Introducción al Archivo de Vistas
@@ -453,8 +456,6 @@ def view_plan(request, plan_id):
 
 # Registrar log de ejercicio. Envía email al trainer con detalles.
 # 
-# Por qué: Feedback en tiempo real. Busca best_log para motivación. Usa send_mail para notificación.
-
 @login_required
 def log_exercise(request, workout_exercise_id):
     workout_exercise = get_object_or_404(WorkoutExercise, id=workout_exercise_id, workout__plan__client=request.user)
@@ -468,7 +469,14 @@ def log_exercise(request, workout_exercise_id):
             log = form.save(commit=False)
             log.client = request.user
             log.workout_exercise = workout_exercise
-            log.save()
+            # Validar si hay video y es válido
+            if 'video_log' in request.FILES:
+                video_file = request.FILES['video_log']
+                mime_type, _ = mimetypes.guess_type(video_file.name)
+                if not mime_type or not mime_type.startswith('video/'):
+                    messages.error(request, "El archivo subido no es un video válido.")
+                    return render(request, 'clientes/report.html', {'form': form, 'workout_exercise': workout_exercise, 'best_log': best_log})
+            log.save()  # Sube directamente a B2
             trainer_email = workout_exercise.workout.plan.trainer.email
             subject = f"Reporte de Entrenamiento de {request.user.username}"
             message = f"""
@@ -495,13 +503,9 @@ def log_exercise(request, workout_exercise_id):
     }
     return render(request, 'clientes/report.html', context)
 
-
 #-------------------------------------------------------------------------------------------------------------------
-
 #------------------------Vistas Adicionales - Logs y Nutricionistas --------------------------------
-
 # Ver detalle de log. Verifica permisos basados en rol.
-
 @login_required
 def view_log(request, log_id):
     log = get_object_or_404(ExerciseLog, id=log_id)
@@ -514,7 +518,6 @@ def view_log(request, log_id):
         return redirect('inicio')
     context = {'log': log}
     return render(request, 'entrenador/view_log.html', context)
-
 
 # Dashboard para nutricionistas: Placeholder para futura implementación.
 
@@ -539,3 +542,24 @@ def client_logs(request, client_id):
         'logs': logs,
     }
     return render(request, 'entrenador/client_logs.html', context)
+
+
+
+@login_required
+def create_exercise(request):
+    if request.user.role != 'ENTRENADOR':
+        messages.error(request, "No tienes permiso para crear ejercicios.")
+        return redirect('inicio')
+    
+    if request.method == 'POST':
+        form = ExerciseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Ejercicio creado exitosamente.")
+            return redirect('trainer_dashboard')
+        else:
+            messages.error(request, "Error al crear el ejercicio. Revisa los datos ingresados.")
+    else:
+        form = ExerciseForm()
+    
+    return render(request, 'entrenador/create_exercise.html', {'form': form})

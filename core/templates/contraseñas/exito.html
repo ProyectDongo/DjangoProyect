@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}Contraseña Cambiada{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>Contraseña Cambiada Exitosamente</h2>
+        <p>Tu contraseña ha sido actualizada. Ahora puedes <a href="{% url 'trainer_dashboard' %}">volver a tu dashboard</a>.</p>  
+    </div>
+{% endblock %}

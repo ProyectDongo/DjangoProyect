@@ -1,140 +1,192 @@
-{% extends 'base.html' %}
-{% block title %}Dashboard Cliente{% endblock %}
-{% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="bi bi-person-circle me-2"></i>Panel de Cliente
-        </h1>
-        <div class="dropdown">
-            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-filter me-1"></i>Filtrar
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <li><a class="dropdown-item" href="#">Todos</a></li>
-                <li><a class="dropdown-item" href="#">Activos</a></li>
-                <li><a class="dropdown-item" href="#">Completados</a></li>
-            </ul>
-        </div>
-    </div>
+{% extends 'base_dashboard.html' %}
 
-    <!-- Tarjetas de resumen -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card dashboard-card h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Planes Activos</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_plans_count }}</div>
-                            
-                        </div>
-                        <div class="col-auto">
-                            <i class="bi bi-clipboard-check fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card dashboard-card h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Sesiones Esta Semana</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ weekly_sessions }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="bi bi-calendar-week fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card dashboard-card h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Ejercicios Completados</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ completed_exercises }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="bi bi-check-circle fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card dashboard-card h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Próxima Sesión</div>
-                            <div class="h6 mb-0 font-weight-bold text-gray-800">{{ next_session.date|date:"d/m"|default:"Ninguna" }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="bi bi-arrow-right-circle fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+{% block dashboard_title %}Dashboard Cliente{% endblock %}
 
-    <!-- Pestañas -->
-    <ul class="nav mb-3">
-        <li class="excel-sheet-tab active" data-bs-toggle="tab" data-bs-target="#planes">Planes</li>
-        <li class="excel-sheet-tab" data-bs-toggle="tab" data-bs-target="#calentamientos">Calentamientos</li>
-        <li class="excel-sheet-tab" data-bs-toggle="tab" data-bs-target="#rpe">RPE/RIR</li>
+{% block dashboard_icon %}<i class="bi bi-person-circle me-2"></i>{% endblock %}
+
+{% block dashboard_heading %}Panel de Cliente{% endblock %}
+
+{% block dashboard_actions %}
+<a href="{% url 'cambiar_contraseña' %}" class="btn btn-excel btn-sm">
+        <i class="bi bi-key me-1"></i>Cambiar Contraseña
+    </a>
+<div class="dropdown">
+    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-filter me-1"></i>Filtrar
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <li><a class="dropdown-item" href="#">Todos</a></li>
+        <li><a class="dropdown-item" href="#">Activos</a></li>
+        <li><a class="dropdown-item" href="#">Completados</a></li>
     </ul>
+</div>
+{% endblock %}
 
-    <div class="tab-content">
-        <div class="tab-pane fade show active" id="planes">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Tus Planes de Entrenamiento</h6>
+{% block dashboard_stats %}
+<div class="col-xl-3 col-md-6 mb-4 dashboard-stats">
+    <div class="card dashboard-card h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Planes Activos</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_plans_count }}</div>
                 </div>
-                <div class="card-body">
+                <div class="col-auto">
+                    <i class="bi bi-clipboard-check fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-xl-3 col-md-6 mb-4 dashboard-stats">
+    <div class="card dashboard-card h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Sesiones Esta Semana</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ weekly_sessions }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="bi bi-calendar-week fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-xl-3 col-md-6 mb-4 dashboard-stats">
+    <div class="card dashboard-card h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Ejercicios Completados</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ completed_exercises }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="bi bi-check-circle fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-xl-3 col-md-6 mb-4 dashboard-stats">
+    <div class="card dashboard-card h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Próxima Sesión</div>
+                    <div class="h6 mb-0 font-weight-bold text-gray-800">{{ next_session.date|date:"d/m"|default:"Ninguna" }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="bi bi-arrow-right-circle fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block dashboard_tabs %}
+<li class="nav-item">
+    <a class="nav-link excel-sheet-tab active" data-bs-toggle="tab" href="#planes">Planes</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link excel-sheet-tab" data-bs-toggle="tab" href="#calentamientos">Calentamientos</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link excel-sheet-tab" data-bs-toggle="tab" href="#rpe">RPE/RIR</a>
+</li>
+{% endblock %}
+
+{% block dashboard_tab_content %}
+<!-- Pestaña Planes -->
+<div class="tab-pane fade show active" id="planes">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Tus Planes de Entrenamiento</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered excel-table" width="100%" cellspacing="0">
+                    <thead class="excel-header">
+                        <tr>
+                            <th>Nombre del Plan</th>
+                            <th class="mobile-hidden">Entrenador</th>
+                            <th>Fecha Inicio</th>
+                            <th class="mobile-hidden">Fecha Fin</th>
+                            <th>Progreso</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for plan in plans %}
+                        <tr>
+                            <td class="excel-cell">{{ plan.name }}</td>
+                            <td class="excel-cell mobile-hidden">{{ plan.trainer.username }}</td>
+                            <td class="excel-cell">{{ plan.start_date|date:"d/m/Y" }}</td>
+                            <td class="excel-cell mobile-hidden">{{ plan.end_date|date:"d/m/Y" }}</td>
+                            <td class="excel-cell">
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ progress }}%;" 
+                                         aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <small class="text-muted">{{ progress }}% completado</small>
+                            </td>
+                            <td class="excel-cell">
+                                <div class="btn-stack">
+                                    <a href="{% url 'view_plan' plan.id %}" class="btn btn-sm btn-excel">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center excel-cell py-4">
+                                <i class="bi bi-inbox display-4 d-block text-muted mb-2"></i>
+                                <p class="text-muted">No tienes planes asignados actualmente.</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary">Solicitar Plan</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pestaña Calentamientos -->
+<div class="tab-pane fade" id="calentamientos">
+    <div class="row">
+        <!-- Tren Inferior -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tren Inferior</h6>
+                </div>
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-bordered excel-table" width="100%" cellspacing="0">
+                        <table class="table table-bordered excel-table m-0">
                             <thead class="excel-header">
                                 <tr>
-                                    <th>Nombre del Plan</th>
-                                    <th>Entrenador</th>
-                                    <th>Fecha Inicio</th>
-                                    <th>Fecha Fin</th>
-                                    <th>Progreso</th>
-                                    <th>Acciones</th>
+                                    <th>Ejercicio</th>
+                                    <th>Series/Reps</th>
+                                    <th class="mobile-hidden">Notas</th>
+                                    <th>Video</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for plan in plans %}
+                                {% for warmup in warmups.lower_body %}
                                 <tr>
-                                    <td class="excel-cell">{{ plan.name }}</td>
-                                    <td class="excel-cell">{{ plan.trainer.username }}</td>
-                                    <td class="excel-cell">{{ plan.start_date|date:"d/m/Y" }}</td>
-                                    <td class="excel-cell">{{ plan.end_date|date:"d/m/Y" }}</td>
+                                    <td class="excel-cell">{{ warmup.name }}</td>
+                                    <td class="excel-cell">{{ warmup.series_reps }}</td>
+                                    <td class="excel-cell mobile-hidden">{{ warmup.notes }}</td>
                                     <td class="excel-cell">
-                                        <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar" role="progressbar" style="width: {{ progress }}%;" 
-                                                 aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <small class="text-muted">{{ progress }}% completado</small>
-                                    </td>
-                                    <td class="excel-cell">
-                                        <a href="{% url 'view_plan' plan.id %}" class="btn btn-sm btn-excel">
-                                            <i class="bi bi-eye me-1"></i>Ver
+                                        {% if warmup.video_url %}
+                                        <a href="{{ warmup.video_url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-play-btn"></i>
                                         </a>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="6" class="text-center excel-cell py-4">
-                                        <i class="bi bi-inbox display-4 d-block text-muted mb-2"></i>
-                                        <p class="text-muted">No tienes planes asignados actualmente.</p>
-                                        <a href="#" class="btn btn-sm btn-outline-primary">Solicitar Plan</a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -144,225 +196,183 @@
                 </div>
             </div>
         </div>
-
-        <div class="tab-pane fade" id="calentamientos">
-            <div class="row">
-                <!-- Tren Inferior -->
-                <div class="col-lg-6 mb-4">
-                    <div class="card shadow">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Tren Inferior</h6>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-bordered excel-table m-0">
-                                    <thead class="excel-header">
-                                        <tr>
-                                            <th>Ejercicio</th>
-                                            <th>Series/Reps</th>
-                                            <th>Notas</th>
-                                            <th>Video</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for warmup in warmups.lower_body %}
-                                        <tr>
-                                            <td class="excel-cell">{{ warmup.name }}</td>
-                                            <td class="excel-cell">{{ warmup.series_reps }}</td>
-                                            <td class="excel-cell">{{ warmup.notes }}</td>
-                                            <td class="excel-cell">
-                                                {% if warmup.video_url %}
-                                                <a href="{{ warmup.video_url }}" target="_blank" class="btn btn-sm btn-outline-info">
-                                                    <i class="bi bi-play-btn"></i>
-                                                </a>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Tren Superior -->
-                <div class="col-lg-6 mb-4">
-                    <div class="card shadow">
-                        <div class="card-header py-3">
-                            <h6 class="m-0 font-weight-bold text-primary">Tren Superior</h6>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-bordered excel-table m-0">
-                                    <thead class="excel-header">
-                                        <tr>
-                                            <th>Ejercicio</th>
-                                            <th>Series/Reps</th>
-                                            <th>Notas</th>
-                                            <th>Video</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for warmup in warmups.upper_body %}
-                                        <tr>
-                                            <td class="excel-cell">{{ warmup.name }}</td>
-                                            <td class="excel-cell">{{ warmup.series_reps }}</td>
-                                            <td class="excel-cell">{{ warmup.notes }}</td>
-                                            <td class="excel-cell">
-                                                {% if warmup.video_url %}
-                                                <a href="{{ warmup.video_url }}" target="_blank" class="btn btn-sm btn-outline-info">
-                                                    <i class="bi bi-play-btn"></i>
-                                                </a>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    
-        <!-- Tabla RPE/RIR -->
-        <div class="tab-pane fade" id="rpe">
-            <div class="card shadow mb-4">
+        <!-- Tren Superior -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Tabla de Referencia RPE/RIR</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Tren Superior</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-bordered rpe-table excel-table">
+                        <table class="table table-bordered excel-table m-0">
                             <thead class="excel-header">
                                 <tr>
-                                    <th>ESCALA RPE</th>
-                                    <th>¿QUÉ SIGNIFICA? RPE</th>
-                                    <th>ESCALA RIR</th>
-                                    <th>¿QUÉ SIGNIFICA? RIR</th>
-                                    <th>RELACIÓN ENTRE AMBOS</th>
+                                    <th>Ejercicio</th>
+                                    <th>Series/Reps</th>
+                                    <th class="mobile-hidden">Notas</th>
+                                    <th>Video</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for warmup in warmups.upper_body %}
                                 <tr>
-                                    <td class="excel-cell text-center">10.0</td>
-                                    <td class="excel-cell">Máximo esfuerzo, no puede hacer más repeticiones</td>
-                                    <td class="excel-cell text-center">0.0</td>
-                                    <td class="excel-cell">No queda ninguna repetición (fallo)</td>
-                                    <td class="excel-cell text-center">RPE 10 = RIR 0</td>
+                                    <td class="excel-cell">{{ warmup.name }}</td>
+                                    <td class="excel-cell">{{ warmup.series_reps }}</td>
+                                    <td class="excel-cell mobile-hidden">{{ warmup.notes }}</td>
+                                    <td class="excel-cell">
+                                        {% if warmup.video_url %}
+                                        <a href="{{ warmup.video_url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-play-btn"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">9.5</td>
-                                    <td class="excel-cell">Podría haber hecho 0-1 repetición más</td>
-                                    <td class="excel-cell text-center">0-1</td>
-                                    <td class="excel-cell">Casi al fallo, máxima exigencia</td>
-                                    <td class="excel-cell text-center">RPE 9.5 = RIR 0-1</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">9.0</td>
-                                    <td class="excel-cell">Te quedan 1 repetición más</td>
-                                    <td class="excel-cell text-center">1.0</td>
-                                    <td class="excel-cell">Te queda 1 repetición en reserva</td>
-                                    <td class="excel-cell text-center">RPE 9 = RIR 1</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">8.5</td>
-                                    <td class="excel-cell">Te quedan 1-2 repeticiones más</td>
-                                    <td class="excel-cell text-center">1-2</td>
-                                    <td class="excel-cell">Muy cerca del fallo, pero sin alcanzarlo</td>
-                                    <td class="excel-cell text-center">RPE 8.5 = RIR 1-2</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">8.0</td>
-                                    <td class="excel-cell">Te quedan 2 repeticiones más</td>
-                                    <td class="excel-cell text-center">2.0</td>
-                                    <td class="excel-cell">Te quedan 2 repeticiones antes del fallo</td>
-                                    <td class="excel-cell text-center">RPE 8 = RIR 2</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">7.5</td>
-                                    <td class="excel-cell">Te quedan 2-3 repeticiones más</td>
-                                    <td class="excel-cell text-center">2-3</td>
-                                    <td class="excel-cell">Entrenamiento moderado</td>
-                                    <td class="excel-cell text-center">RPE 7.5 = RIR 2-3</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">7.0</td>
-                                    <td class="excel-cell">Te quedan 3 repeticiones más</td>
-                                    <td class="excel-cell text-center">3.0</td>
-                                    <td class="excel-cell">Mucho margen, esfuerzo bajo</td>
-                                    <td class="excel-cell text-center">RPE 7 = RIR 3</td>
-                                </tr>
-                                <tr>
-                                    <td class="excel-cell text-center">6 o MENOS</td>
-                                    <td class="excel-cell">Calentamiento o muy poca carga</td>
-                                    <td class="excel-cell text-center">4 o MÁS</td>
-                                    <td class="excel-cell">Sería muy fácil</td>
-                                    <td class="excel-cell text-center">RPE 6 = RIR 4+</td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-    <!-- Próximas sesiones y estadísticas -->
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Próximas Sesiones</h6>
-                </div>
-                <div class="card-body">
-                    {% if upcoming_sessions %}
-                    <div class="list-group">
-                        {% for session in upcoming_sessions %}
-                        <a href="{% url 'view_plan' session.plan.id %}" class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">{{ session.title }}</h6>
-                                <small>{{ session.date|date:"d/m" }}</small>
-                            </div>
-                            <p class="mb-1 small">{{ session.plan.name }}</p>
-                            <small class="text-muted">{{ session.exercises.count }} ejercicios</small>
-                        </a>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="text-muted text-center py-3">No hay sesiones programadas</p>
-                    {% endif %}
-                </div>
+<!-- Pestaña RPE/RIR -->
+<div class="tab-pane fade" id="rpe">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Tabla de Referencia RPE/RIR</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered rpe-table excel-table">
+                    <thead class="excel-header">
+                        <tr>
+                            <th>ESCALA RPE</th>
+                            <th class="mobile-hidden">¿QUÉ SIGNIFICA? RPE</th>
+                            <th>ESCALA RIR</th>
+                            <th class="mobile-hidden">¿QUÉ SIGNIFICA? RIR</th>
+                            <th>RELACIÓN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="excel-cell text-center">10.0</td>
+                            <td class="excel-cell mobile-hidden">Máximo esfuerzo, no puede hacer más repeticiones</td>
+                            <td class="excel-cell text-center">0.0</td>
+                            <td class="excel-cell mobile-hidden">No queda ninguna repetición (fallo)</td>
+                            <td class="excel-cell text-center">RPE 10 = RIR 0</td>
+                        </tr>
+                        <tr>
+                            <td class="excel-cell text-center">9.5</td>
+                            <td class="excel-cell mobile-hidden">Podría haber hecho 0-1 repetición más</td>
+                            <td class="excel-cell text-center">0-1</td>
+                            <td class="excel-cell mobile-hidden">Casi al fallo, máxima exigencia</td>
+                            <td class="excel-cell text-center">RPE 9.5 = RIR 0-1</td>
+                        </tr>
+                        <tr>
+                            <td class="excel-cell text-center">9.0</td>
+                            <td class="excel-cell mobile-hidden">Te quedan 1 repetición más</td>
+                            <td class="excel-cell text-center">1.0</td>
+                            <td class="excel-cell mobile-hidden">Te queda 1 repetición en reserva</td>
+                            <td class="excel-cell text-center">RPE 9 = RIR 1</td>
+                        </tr>
+                        <tr>
+                            <td class="excel-cell text-center">8.5</td>
+                            <td class="excel-cell mobile-hidden">Te quedan 1-2 repeticiones más</td>
+                            <td class="excel-cell text-center">1-2</td>
+                            <td class="excel-cell mobile-hidden">Muy cerca del fallo, pero sin alcanzarlo</td>
+                            <td class="excel-cell text-center">RPE 8.5 = RIR 1-2</td>
+                        </tr>
+                        <tr>
+                            <td class="excel-cell text-center">8.0</td>
+                            <td class="excel-cell mobile-hidden">Te quedan 2 repeticiones más</td>
+                            <td class="excel-cell text-center">2.0</td>
+                            <td class="excel-cell mobile-hidden">Te quedan 2 repeticiones antes del fallo</td>
+                            <td class="excel-cell text-center">RPE 8 = RIR 2</td>
+                        </tr>
+                        <tr>
+                            <td class="excel-cell text-center">7.5</td>
+                            <td class="excel-cell mobile-hidden">Te quedan 2-3 repeticiones más</td>
+                            <td class="excel-cell text-center">2-3</td>
+                            <td class="excel-cell mobile-hidden">Entrenamiento moderado</td>
+                            <td class="excel-cell text-center">RPE 7.5 = RIR 2-3</td>
+                        </tr>
+                        <tr>
+                            <td class="excel-cell text-center">7.0</td>
+                            <td class="excel-cell mobile-hidden">Te quedan 3 repeticiones más</td>
+                            <td class="excel-cell text-center">3.0</td>
+                            <td class="excel-cell mobile-hidden">Mucho margen, esfuerzo bajo</td>
+                            <td class="excel-cell text-center">RPE 7 = RIR 3</td>
+                        </tr>
+                        <tr>
+                            <td class="excel-cell text-center">6 o MENOS</td>
+                            <td class="excel-cell mobile-hidden">Calentamiento o muy poca carga</td>
+                            <td class="excel-cell text-center">4 o MÁS</td>
+                            <td class="excel-cell mobile-hidden">Sería muy fácil</td>
+                            <td class="excel-cell text-center">RPE 6 = RIR 4+</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Estadísticas Rápidas</h6>
+    </div>
+</div>
+{% endblock %}
+
+{% block dashboard_after_tabs %}
+<!-- Próximas sesiones y estadísticas -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Próximas Sesiones</h6>
+            </div>
+            <div class="card-body">
+                {% if upcoming_sessions %}
+                <div class="list-group">
+                    {% for session in upcoming_sessions %}
+                    <a href="{% url 'view_plan' session.plan.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ session.title }}</h6>
+                            <small>{{ session.date|date:"d/m" }}</small>
+                        </div>
+                        <p class="mb-1 small">{{ session.plan.name }}</p>
+                        <small class="text-muted">{{ session.exercises.count }} ejercicios</small>
+                    </a>
+                    {% endfor %}
                 </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-4">
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_workouts }}</div>
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Sesiones</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_exercises }}</div>
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Ejercicios</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ consistency }}%</div>
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Consistencia</div>
-                        </div>
+                {% else %}
+                <p class="text-muted text-center py-3">No hay sesiones programadas</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Estadísticas Rápidas</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_workouts }}</div>
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Sesiones</div>
                     </div>
-                    <hr>
-                    <div class="text-center">
-                        <a href="{% url 'client_statistics' %}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-graph-up me-1"></i>Ver Estadísticas Completas
-                        </a>
+                    <div class="col-4">
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_exercises }}</div>
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Ejercicios</div>
                     </div>
+                    <div class="col-4">
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ consistency }}%</div>
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Consistencia</div>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <a href="{% url 'client_statistics' %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-graph-up me-1"></i>Ver Estadísticas Completas
+                    </a>
                 </div>
             </div>
         </div>

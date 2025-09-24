@@ -1,68 +1,75 @@
 {% extends 'base.html' %}
 {% block title %}Bienvenido{% endblock %}
+
 {% block content %}
-<div class="container py-5">
+
+<div class="container py-4 py-lg-5">
+    <!-- Hero Section -->
     <div class="row align-items-center">
         <div class="col-lg-6 mb-5 mb-lg-0">
-            <h1 class="display-4 fw-bold text-success mb-4">¡Bienvenido a Fitness Platform!</h1>
-            <p class="lead mb-4">La plataforma integral para entrenadores, nutricionistas y clientes. Gestiona planes, tracks progreso y más.</p>
-            <div class="d-grid gap-2 d-md-flex">
-                <a href="{% url 'login' %}" class="btn btn-excel btn-lg px-4 me-md-2">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
-                </a>
-                <a href="#" class="btn btn-outline-secondary btn-lg px-4">
-                    <i class="bi bi-info-circle me-2"></i>Más Información
-                </a>
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold text-gradient mb-4">¡Bienvenido a <span class="brand-highlight">Fitness Platform</span>!</h1>
+                <p class="lead mb-4">La plataforma integral para entrenadores, nutricionistas y clientes. Gestiona planes, sigue tu progreso y alcanza tus objetivos de forma eficiente.</p>
+                <div class="d-grid gap-2 d-md-flex hero-buttons">
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4 me-md-2 shadow">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                    </a>
+                    <a href="#" class="btn btn-outline-secondary btn-lg px-4">
+                        <i class="bi bi-info-circle me-2"></i>Más Información
+                    </a>
+                </div>
             </div>
         </div>
+        
+        <!-- Features Card -->
         <div class="col-lg-6">
-            <div class="card shadow">
-                <div class="card-header excel-header py-3">
-                    <h5 class="m-0 font-weight-bold">Características Principales</h5>
+            <div class="card features-card shadow-lg border-0">
+                <div class="card-header gradient-header text-white py-4">
+                    <h5 class="m-0 font-weight-bold text-center">Características Principales</h5>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0 bg-success bg-opacity-10 p-3 rounded">
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="feature-item d-flex align-items-start p-3 rounded-3 h-100">
+                                <div class="feature-icon flex-shrink-0 bg-success bg-opacity-10 p-3 rounded-circle me-3">
                                     <i class="bi bi-clipboard-data text-success fs-4"></i>
                                 </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6 class="fw-bold">Seguimiento de Progreso</h6>
-                                    <p class="small mb-0">Registra y visualiza tu evolución</p>
+                                <div class="feature-text">
+                                    <h6 class="fw-bold mb-2">Seguimiento de Progreso</h6>
+                                    <p class="small mb-0 text-muted">Registra y visualiza tu evolución con gráficos detallados</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0 bg-primary bg-opacity-10 p-3 rounded">
+                        <div class="col-md-6">
+                            <div class="feature-item d-flex align-items-start p-3 rounded-3 h-100">
+                                <div class="feature-icon flex-shrink-0 bg-primary bg-opacity-10 p-3 rounded-circle me-3">
                                     <i class="bi bi-people text-primary fs-4"></i>
                                 </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6 class="fw-bold">Comunicación Directa</h6>
-                                    <p class="small mb-0">Contacta con tu entrenador</p>
+                                <div class="feature-text">
+                                    <h6 class="fw-bold mb-2">Comunicación Directa</h6>
+                                    <p class="small mb-0 text-muted">Contacta fácilmente con tu entrenador o nutricionista</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0 bg-warning bg-opacity-10 p-3 rounded">
+                        <div class="col-md-6">
+                            <div class="feature-item d-flex align-items-start p-3 rounded-3 h-100">
+                                <div class="feature-icon flex-shrink-0 bg-warning bg-opacity-10 p-3 rounded-circle me-3">
                                     <i class="bi bi-bar-chart text-warning fs-4"></i>
                                 </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6 class="fw-bold">Estadísticas Detalladas</h6>
-                                    <p class="small mb-0">Analiza tu rendimiento</p>
+                                <div class="feature-text">
+                                    <h6 class="fw-bold mb-2">Estadísticas Detalladas</h6>
+                                    <p class="small mb-0 text-muted">Analiza tu rendimiento con métricas avanzadas</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0 bg-info bg-opacity-10 p-3 rounded">
+                        <div class="col-md-6">
+                            <div class="feature-item d-flex align-items-start p-3 rounded-3 h-100">
+                                <div class="feature-icon flex-shrink-0 bg-info bg-opacity-10 p-3 rounded-circle me-3">
                                     <i class="bi bi-calendar-check text-info fs-4"></i>
                                 </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h6 class="fw-bold">Planificación</h6>
-                                    <p class="small mb-0">Organiza tus entrenamientos</p>
+                                <div class="feature-text">
+                                    <h6 class="fw-bold mb-2">Planificación Inteligente</h6>
+                                    <p class="small mb-0 text-muted">Organiza y programa tus entrenamientos de forma eficiente</p>
                                 </div>
                             </div>
                         </div>
@@ -71,5 +78,144 @@
             </div>
         </div>
     </div>
+    
+    <!-- Additional Features Section -->
+    <div class="row mt-5 pt-4">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">¿Por qué elegir nuestra plataforma?</h2>
+            <p class="text-muted">Descubre todas las ventajas que ofrecemos para tu bienestar físico</p>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="text-center p-3">
+                <div class="benefit-icon mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-heart-pulse text-danger fs-1"></i>
+                </div>
+                <h5 class="mt-3 fw-bold">Salud Integral</h5>
+                <p class="text-muted">Abordamos todos los aspectos del bienestar: ejercicio, nutrición y mental.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="text-center p-3">
+                <div class="benefit-icon mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-phone text-primary fs-1"></i>
+                </div>
+                <h5 class="mt-3 fw-bold">Acceso Móvil</h5>
+                <p class="text-muted">Accede a tu plan de entrenamiento desde cualquier dispositivo, en cualquier momento.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="text-center p-3">
+                <div class="benefit-icon mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-shield-check text-success fs-1"></i>
+                </div>
+                <h5 class="mt-3 fw-bold">Resultados Garantizados</h5>
+                <p class="text-muted">Nuestro método ha ayudado a miles de personas a alcanzar sus objetivos.</p>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    /* Estilos personalizados para mejorar el diseño */
+    .text-gradient {
+        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .brand-highlight {
+        color: #198754;
+        -webkit-text-fill-color: #198754;
+    }
+    
+    .gradient-header {
+        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
+        border: none;
+    }
+    
+    .features-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    
+    .features-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-item {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .feature-item:hover {
+        background-color: rgba(25, 135, 84, 0.03);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    
+    .hero-content {
+        padding-right: 1.5rem;
+    }
+    
+    .benefit-icon {
+        width: 80px;
+        height: 80px;
+        transition: transform 0.3s ease;
+    }
+    
+    .benefit-icon:hover {
+        transform: scale(1.1);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #157347 0%, #0b5ed7 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .hero-content {
+            padding-right: 0;
+            text-align: center;
+        }
+        
+        .display-4 {
+            font-size: 2.5rem;
+        }
+        
+        .hero-buttons {
+            justify-content: center;
+        }
+        
+        .feature-item {
+            margin-bottom: 1rem;
+        }
+        
+        .benefit-icon {
+            width: 70px;
+            height: 70px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .display-4 {
+            font-size: 2rem;
+        }
+        
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+    }
+</style>
 {% endblock %}

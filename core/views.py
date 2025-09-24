@@ -2,6 +2,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import PasswordChangeView
+from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
+
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 def inicio(request):
     return render(request, 'core/welcome.html')
@@ -25,3 +30,15 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'core/login.html', {'form': form})
+
+
+
+class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    # LoginRequiredMixin debe ir primero en el MRO
+    template_name = 'contraseñas/password.html'
+    success_url = reverse_lazy('exito_cambio_contraseña')  # asegúrate que coincide con el name en urls.py
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # añade lo que necesites al contexto
+        return context

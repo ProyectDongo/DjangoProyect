@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv  # Importa para cargar .env
+
+# Carga las variables de entorno desde .env
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,6 +50,7 @@ INSTALLED_APPS = [
     'evaluacion',
     'harware',
     'nutricion',
+    'storages', 
     
 
 ]
@@ -147,7 +152,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'static')]
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Puedes mantener esto como fallback para desarrollo local, pero con STORAGES no se usará para uploads a Cloudinary.
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -165,3 +170,22 @@ LOGIN_URL = 'login/'
 # Configuración de sesiones
 SESSION_COOKIE_AGE = 3600  # Sesiones expiran en 1 hora
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Sesiones cierran al cerrar el navegador
+
+
+
+
+# Backblaze B2 Storage Configuration
+
+# Cargar credenciales desde .env
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')  # 0053b1747bdf37d0000000003
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')  # tu applicationKey real
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')  # flametraining
+AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')  # https://s3.us-east-005.backblazeb2.com
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.us-east-005.backblazeb2.com'  # flametraining.s3.us-east-005.backblazeb2.com
+AWS_DEFAULT_ACL = 'public-read'  # Hace los archivos públicos por default (coincide con tu bucket público)
+AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}  # Caché para optimización
+AWS_S3_FILE_OVERWRITE = False  # Evita sobrescribir archivos existentes
+
+# Usa B2 como almacenamiento predeterminado para media (videos)
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'  # https://flametraining.s3.us-east-005.backblazeb2.com/

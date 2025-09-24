@@ -1,0 +1,443 @@
+{% extends 'base.html' %}
+{% block title %}{% block dashboard_title %}{% endblock %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Mensajes de alerta -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Cabecera del dashboard -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-column flex-md-row">
+        <h1 class="h3 mb-2 mb-md-0 text-gray-800">
+            {% block dashboard_icon %}{% endblock %}
+            {% block dashboard_heading %}{% endblock %}
+        </h1>
+        <div class="mt-2 mt-md-0 d-flex flex-wrap gap-2">
+            {% block dashboard_actions %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Tarjetas de estadísticas -->
+    <div class="row mb-4">
+        {% block dashboard_stats %}{% endblock %}
+    </div>
+
+    <!-- Pestañas de navegación -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-column flex-md-row">
+        <ul class="nav mb-2 mb-md-0 dashboard-tabs" id="dashboardTabs">
+            {% block dashboard_tabs %}{% endblock %}
+        </ul>
+        <div class="mt-2 mt-md-0">
+            {% block dashboard_tab_actions %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Contenido de las pestañas -->
+    <div class="tab-content">
+        {% block dashboard_tab_content %}{% endblock %}
+    </div>
+
+    <!-- Contenido adicional después de las pestañas -->
+    {% block dashboard_after_tabs %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos para responsividad móvil */
+    @media (max-width: 768px) {
+        .dashboard-tabs {
+            width: 100%;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            padding-bottom: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .dashboard-tabs .nav-link {
+            white-space: nowrap;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+        
+        .table-responsive {
+            font-size: 0.85rem;
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .card-header h6 {
+            font-size: 1rem;
+        }
+        
+        .h3 {
+            font-size: 1.5rem;
+        }
+        
+        .excel-table th,
+        .excel-table td {
+            padding: 6px 4px;
+        }
+        
+        /* Ocultar columnas menos importantes en móvil */
+        .mobile-hidden {
+            display: none;
+        }
+        
+        /* Tarjetas de estadísticas en columna única */
+        .dashboard-stats .col-xl-3 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        
+        /* Mejorar visualización de tablas en móvil */
+        .table-responsive table {
+            min-width: 600px;
+        }
+        
+        /* Ajustar cards para móvil */
+        .card-body {
+            padding: 1rem;
+        }
+        
+        /* Mejorar visualización de progress bars */
+        .progress {
+            height: 6px;
+        }
+        
+        .progress + small {
+            font-size: 0.75rem;
+        }
+
+        /* Ajustes específicos para móvil */
+        .mobile-stack {
+            flex-direction: column;
+        }
+        
+        .mobile-w-100 {
+            width: 100% !important;
+        }
+        
+        .mobile-text-center {
+            text-align: center;
+        }
+        
+        .mobile-mb-2 {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .container-fluid {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        .btn-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .btn-stack .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Estilos para las pestañas estilo Excel */
+    .excel-sheet-tab {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-bottom: none;
+        border-radius: 4px 4px 0 0;
+        margin-right: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        color: #333;
+        text-decoration: none;
+    }
+    
+    .excel-sheet-tab.active {
+        background-color: #fff;
+        border-bottom: 1px solid #fff;
+        margin-bottom: -1px;
+        color: #0d6efd;
+    }
+    
+    .excel-sheet-tab:hover {
+        background-color: #e9e9e9;
+        color: #333;
+    }
+    
+    .excel-table {
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    
+    .excel-header {
+        background-color: #f8f9fa;
+    }
+    
+    .excel-cell {
+        border: 1px solid #dee2e6;
+        padding: 8px;
+        vertical-align: middle;
+    }
+    
+    .dashboard-card {
+        border-left: 4px solid #0d6efd;
+        transition: transform 0.2s;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-excel {
+        background-color: #217346;
+        color: white;
+        border: none;
+    }
+    
+    .btn-excel:hover {
+        background-color: #1a5c38;
+        color: white;
+    }
+    
+    .rpe-table th {
+        background-color: #e9ecef;
+        font-weight: 600;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,.025);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Manejar el desplazamiento horizontal en pestañas para móviles
+        const tabsContainer = document.querySelector('.dashboard-tabs');
+        if (tabsContainer && window.innerWidth < 768) {
+            tabsContainer.addEventListener('wheel', function(e) {
+                if (e.deltaY !== 0) {
+                    e.preventDefault();
+                    tabsContainer.scrollLeft += e.deltaY;
+                }
+            });
+        }
+        
+        // Mejorar accesibilidad en móviles
+        if (window.innerWidth < 768) {
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.style.minHeight = '44px';
+                btn.style.minWidth = '44px';
+            });
+        }
+        
+        // Inicializar tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}
+
+<!-- Bloque para tabla RPE/RIR reutilizable -->
+{% block rpe_table %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Tabla de Referencia RPE/RIR</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered rpe-table excel-table">
+                <thead class="excel-header">
+                    <tr>
+                        <th>ESCALA RPE</th>
+                        <th class="mobile-hidden">¿QUÉ SIGNIFICA? RPE</th>
+                        <th>ESCALA RIR</th>
+                        <th class="mobile-hidden">¿QUÉ SIGNIFICA? RIR</th>
+                        <th>RELACIÓN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="excel-cell text-center">10.0</td>
+                        <td class="excel-cell mobile-hidden">Máximo esfuerzo, no puede hacer más repeticiones</td>
+                        <td class="excel-cell text-center">0.0</td>
+                        <td class="excel-cell mobile-hidden">No queda ninguna repetición (fallo)</td>
+                        <td class="excel-cell text-center">RPE 10 = RIR 0</td>
+                    </tr>
+                    <tr>
+                        <td class="excel-cell text-center">9.5</td>
+                        <td class="excel-cell mobile-hidden">Podría haber hecho 0-1 repetición más</td>
+                        <td class="excel-cell text-center">0-1</td>
+                        <td class="excel-cell mobile-hidden">Casi al fallo, máxima exigencia</td>
+                        <td class="excel-cell text-center">RPE 9.5 = RIR 0-1</td>
+                    </tr>
+                    <tr>
+                        <td class="excel-cell text-center">9.0</td>
+                        <td class="excel-cell mobile-hidden">Te quedan 1 repetición más</td>
+                        <td class="excel-cell text-center">1.0</td>
+                        <td class="excel-cell mobile-hidden">Te queda 1 repetición en reserva</td>
+                        <td class="excel-cell text-center">RPE 9 = RIR 1</td>
+                    </tr>
+                    <tr>
+                        <td class="excel-cell text-center">8.5</td>
+                        <td class="excel-cell mobile-hidden">Te quedan 1-2 repeticiones más</td>
+                        <td class="excel-cell text-center">1-2</td>
+                        <td class="excel-cell mobile-hidden">Muy cerca del fallo, pero sin alcanzarlo</td>
+                        <td class="excel-cell text-center">RPE 8.5 = RIR 1-2</td>
+                    </tr>
+                    <tr>
+                        <td class="excel-cell text-center">8.0</td>
+                        <td class="excel-cell mobile-hidden">Te quedan 2 repeticiones más</td>
+                        <td class="excel-cell text-center">2.0</td>
+                        <td class="excel-cell mobile-hidden">Te quedan 2 repeticiones antes del fallo</td>
+                        <td class="excel-cell text-center">RPE 8 = RIR 2</td>
+                    </tr>
+                    <tr>
+                        <td class="excel-cell text-center">7.5</td>
+                        <td class="excel-cell mobile-hidden">Te quedan 2-3 repeticiones más</td>
+                        <td class="excel-cell text-center">2-3</td>
+                        <td class="excel-cell mobile-hidden">Entrenamiento moderado</td>
+                        <td class="excel-cell text-center">RPE 7.5 = RIR 2-3</td>
+                    </tr>
+                    <tr>
+                        <td class="excel-cell text-center">7.0</td>
+                        <td class="excel-cell mobile-hidden">Te quedan 3 repeticiones más</td>
+                        <td class="excel-cell text-center">3.0</td>
+                        <td class="excel-cell mobile-hidden">Mucho margen, esfuerzo bajo</td>
+                        <td class="excel-cell text-center">RPE 7 = RIR 3</td>
+                    </tr>
+                    <tr>
+                        <td class="excel-cell text-center">6 o MENOS</td>
+                        <td class="excel-cell mobile-hidden">Calentamiento o muy poca carga</td>
+                        <td class="excel-cell text-center">4 o MÁS</td>
+                        <td class="excel-cell mobile-hidden">Sería muy fácil</td>
+                        <td class="excel-cell text-center">RPE 6 = RIR 4+</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- Bloque para sección de calentamientos reutilizable -->
+{% block warmup_section %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-column flex-md-row">
+    <h6 class="m-0 font-weight-bold text-primary">Ejercicios de Calentamiento</h6>
+    <div class="mt-2 mt-md-0">
+        {% block warmup_actions %}{% endblock %}
+    </div>
+</div>
+
+<div class="row">
+    <!-- Tren Inferior -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Tren Inferior</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered excel-table m-0" width="100%" cellspacing="0">
+                        <thead class="excel-header">
+                            <tr>
+                                <th>Ejercicio</th>
+                                <th>Series/Reps</th>
+                                <th class="mobile-hidden">Notas</th>
+                                <th>{% block warmup_lower_actions_header %}Video{% endblock %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for warmup in warmups.lower_body %}
+                            <tr>
+                                <td class="excel-cell">{{ warmup.name }}</td>
+                                <td class="excel-cell">{{ warmup.series_reps }}</td>
+                                <td class="excel-cell mobile-hidden">{{ warmup.notes }}</td>
+                                <td class="excel-cell">
+                                    {% block warmup_lower_actions %}
+                                    {% if warmup.video_url %}
+                                    <a href="{{ warmup.video_url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-play-btn"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% endblock %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tren Superior -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Tren Superior</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered excel-table m-0" width="100%" cellspacing="0">
+                        <thead class="excel-header">
+                            <tr>
+                                <th>Ejercicio</th>
+                                <th>Series/Reps</th>
+                                <th class="mobile-hidden">Notas</th>
+                                <th>{% block warmup_upper_actions_header %}Video{% endblock %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for warmup in warmups.upper_body %}
+                            <tr>
+                                <td class="excel-cell">{{ warmup.name }}</td>
+                                <td class="excel-cell">{{ warmup.series_reps }}</td>
+                                <td class="excel-cell mobile-hidden">{{ warmup.notes }}</td>
+                                <td class="excel-cell">
+                                    {% block warmup_upper_actions %}
+                                    {% if warmup.video_url %}
+                                    <a href="{{ warmup.video_url }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-play-btn"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% endblock %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,49 +1,395 @@
-<!-- entrenamiento/view_log.html -->
 {% extends 'base.html' %}
-{% block title %}Registro de Ejercicio{% endblock %}
+{% block title %}Registro de Ejercicio - {{ log.workout_exercise.exercise.name }}{% endblock %}
 {% block content %}
-<div class="container">
-<a href="{% url 'trainer_dashboard' %}" class="btn btn-sm btn-outline-secondary me-2">
-                <i class="bi bi-arrow-left me-1"></i>Volver
-            </a>
-    <div class="row justify-content-center">
+<div class="container py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+                <div class="mb-3 mb-md-0">
+                    <h1 class="h2 mb-2 text-gradient">
+                        <i class="bi bi-clipboard-check me-2"></i>Registro de Ejercicio
+                    </h1>
+                    <div class="d-flex flex-wrap gap-3 text-muted">
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-person me-1"></i>{{ log.workout_exercise.workout.plan.client.username }}
+                        </span>
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-calendar me-1"></i>{{ log.date_completed|date:"d/m/Y H:i" }}
+                        </span>
+                    </div>
+                </div>
+                <a href="{% url 'trainer_dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Volver al Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
         <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Detalles del Registro</h6>
+            <!-- Exercise Details Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light py-3">
+                    <h5 class="mb-0 text-primary">
+                        <i class="bi bi-info-circle me-2"></i>Detalles del Ejercicio
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Ejercicio:</strong> {{ log.workout_exercise.exercise.name }}</p>
-                    <p><strong>Fecha:</strong> {{ log.date_completed|date:"d/m/Y H:i" }}</p>
-                    <p><strong>Peso:</strong> {{ log.weight_lifted_kg }} kg</p>
-                    <p><strong>Repeticiones:</strong> {{ log.reps_completed }}</p>
-                    <p><strong>RIR:</strong> {{ log.rir_actual }}</p>
-                    <p><strong>RPE:</strong> {{ log.rpe_actual }}</p>
-                    <p><strong>Estado:</strong> {{ log.get_status_display }}</p>
-                    <p><strong>Notas:</strong> {{ log.notes }}</p>
-                    {% if log.video_log %}
-                    <div class="mb-3">
-                        <h6>Video del Registro</h6>
-                        <video controls width="100%">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="exercise-main-info text-center p-4 rounded-3 bg-light">
+                                <h3 class="text-primary mb-0">{{ log.workout_exercise.exercise.name }}</h3>
+                                <p class="text-muted mb-0">{{ log.workout_exercise.workout.title }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="performance-indicators">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-semibold">Estado:</span>
+                                    <span class="badge {% if log.status == 'completed' %}bg-success{% else %}bg-warning{% endif %}">
+                                        {{ log.get_status_display }}
+                                    </span>
+                                </div>
+                                <div class="progress mb-3" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: 100%;"></div>
+                                </div>
+                                <p class="small text-muted mb-0">
+                                    <i class="bi bi-check-circle me-1"></i>Ejercicio registrado correctamente
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics -->
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="metric-card text-center p-3 rounded-3 border">
+                                <div class="metric-value text-primary fw-bold display-6">{{ log.weight_lifted_kg }}</div>
+                                <div class="metric-label text-muted">kg</div>
+                                <div class="metric-title fw-semibold">Peso Levantado</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="metric-card text-center p-3 rounded-3 border">
+                                <div class="metric-value text-success fw-bold display-6">{{ log.reps_completed }}</div>
+                                <div class="metric-label text-muted">repeticiones</div>
+                                <div class="metric-title fw-semibold">Reps Completadas</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="metric-card text-center p-3 rounded-3 border">
+                                <div class="metric-value text-warning fw-bold display-6">{{ log.rir_actual }}</div>
+                                <div class="metric-label text-muted">RIR</div>
+                                <div class="metric-title fw-semibold">Reps en Reserva</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="metric-card text-center p-3 rounded-3 border">
+                                <div class="metric-value text-info fw-bold display-6">{{ log.rpe_actual }}</div>
+                                <div class="metric-label text-muted">RPE</div>
+                                <div class="metric-title fw-semibold">Esfuerzo Percibido</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Section -->
+            {% if log.notes %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light py-3">
+                    <h5 class="mb-0 text-primary">
+                        <i class="bi bi-chat-text me-2"></i>Notas del Registro
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="notes-content bg-light rounded-3 p-3">
+                        <p class="mb-0">{{ log.notes }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Video Section -->
+            {% if log.video_log %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light py-3">
+                    <h5 class="mb-0 text-primary">
+                        <i class="bi bi-camera-video me-2"></i>Video del Registro
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="video-container rounded-3 overflow-hidden">
+                        <video controls width="100%" class="exercise-video">
                             <source src="{{ log.video_log.url }}" type="video/mp4">
                             Tu navegador no soporta video.
                         </video>
                     </div>
-                    {% endif %}
-                    {% if log.workout_exercise.exercise.video_url %}
-                    <div class="mb-3">
-                        <h6>Video del Ejercicio</h6>
-                        <a href="{{ log.workout_exercise.exercise.video_url }}" target="_blank" class="btn btn-primary">
-                            <i class="bi bi-play-btn me-1"></i>Ver Video
+                    <div class="mt-3 text-center">
+                        <a href="{{ log.video_log.url }}" download class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-download me-1"></i>Descargar Video
                         </a>
                     </div>
-                    {% endif %}
-                    <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left me-1"></i>Volver
-                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Exercise Reference Video -->
+            {% if log.workout_exercise.exercise.video_url %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light py-3">
+                    <h5 class="mb-0 text-primary">
+                        <i class="bi bi-play-btn me-2"></i>Video de Referencia
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <div class="video-thumbnail mb-3 rounded-3 overflow-hidden bg-light">
+                            <i class="bi bi-play-circle-fill text-primary" style="font-size: 4rem;"></i>
+                        </div>
+                        <p class="small text-muted mb-3">Video demostrativo del ejercicio</p>
+                        <a href="{{ log.workout_exercise.exercise.video_url }}" target="_blank" class="btn btn-primary w-100">
+                            <i class="bi bi-play-btn me-1"></i>Ver Video del Ejercicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light py-3">
+                    <h5 class="mb-0 text-primary">
+                        <i class="bi bi-lightning me-2"></i>Acciones Rápidas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'trainer_dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Volver al Dashboard
+                        </a>
+                        <a href="{% url 'view_plan' log.workout_exercise.workout.plan.id %}" class="btn btn-outline-primary">
+                            <i class="bi bi-clipboard-data me-1"></i>Ver Plan Completo
+                        </a>
+                        <a href="{% url 'log_exercise' log.workout_exercise.id %}" class="btn btn-excel">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Registro
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light py-3">
+                    <h5 class="mb-0 text-primary">
+                        <i class="bi bi-graph-up me-2"></i>Comparación con Objetivos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="comparison-card p-3 rounded-3 border">
+                                <h6 class="text-center mb-3">Objetivos del Entrenador</h6>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="h5 mb-0 text-primary">{{ log.workout_exercise.sets }}</div>
+                                        <div class="small text-muted">Series</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="h5 mb-0 text-success">{{ log.workout_exercise.reps_target }}</div>
+                                        <div class="small text-muted">Reps</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="h5 mb-0 text-warning">{{ log.workout_exercise.rir_target }}</div>
+                                        <div class="small text-muted">RIR</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="comparison-card p-3 rounded-3 border">
+                                <h6 class="text-center mb-3">Tu Ejecución</h6>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="h5 mb-0 text-primary">{{ log.workout_exercise.sets }}</div>
+                                        <div class="small text-muted">Series</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="h5 mb-0 {% if log.reps_completed >= log.workout_exercise.reps_target %}text-success{% else %}text-warning{% endif %}">
+                                            {{ log.reps_completed }}
+                                        </div>
+                                        <div class="small text-muted">Reps</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="h5 mb-0 {% if log.rir_actual <= log.workout_exercise.rir_target|add:1 %}text-success{% else %}text-warning{% endif %}">
+                                            {{ log.rir_actual }}
+                                        </div>
+                                        <div class="small text-muted">RIR</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Estilos personalizados */
+    .text-gradient {
+        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .card {
+        border-radius: 0.75rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .metric-card {
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .metric-value {
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-label {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .exercise-main-info {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+    }
+    
+    .video-container {
+        background: #000;
+        position: relative;
+    }
+    
+    .exercise-video {
+        border-radius: 0.5rem;
+    }
+    
+    .video-thumbnail {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .notes-content {
+        border-left: 4px solid #198754;
+    }
+    
+    .comparison-card {
+        background: #f8f9fa;
+    }
+    
+    .btn-excel {
+        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
+        border: none;
+        color: white;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-excel:hover {
+        background: linear-gradient(135deg, #157347 0%, #0b5ed7 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        color: white;
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .display-6 {
+            font-size: 2rem;
+        }
+        
+        .metric-card {
+            margin-bottom: 1rem;
+        }
+        
+        .d-grid {
+            gap: 0.5rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .h2 {
+            font-size: 1.5rem;
+        }
+        
+        .display-6 {
+            font-size: 1.75rem;
+        }
+        
+        .exercise-main-info {
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+
+<script>
+    // Script para mejorar la experiencia del video
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mejorar la experiencia del video
+        const video = document.querySelector('.exercise-video');
+        if (video) {
+            video.addEventListener('play', function() {
+                // Podríamos agregar tracking de reproducción aquí
+                console.log('Video started playing');
+            });
+            
+            video.addEventListener('ended', function() {
+                console.log('Video finished playing');
+            });
+        }
+        
+        // Smooth scroll para anchors
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    });
+</script>
 {% endblock %}
