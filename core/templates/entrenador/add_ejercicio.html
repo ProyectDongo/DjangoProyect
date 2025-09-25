@@ -51,6 +51,10 @@
                                 {{ form.notes }}
                             </div>
                         </div>
+                        <div class="mb-3 form-check">
+                            {{ form.video_required }}
+                            <label class="form-check-label" for="id_video_required">Requerir Video</label>
+                        </div>
                         <div class="d-flex justify-content-between">
                             <a href="{% url 'workout_detail' workout.id %}" class="btn btn-secondary">
                                 <i class="bi bi-arrow-left me-1"></i>Cancelar

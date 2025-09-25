@@ -2,40 +2,31 @@ from django import forms
 from .models import TrainingPlan, Workout, WorkoutExercise, ExerciseLog, Warmup, Exercise
 from core.models import User
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MaxValueValidator, FileExtensionValidator
+from django.core.exceptions import ValidationError
 
+def validate_file_size(value):
+    if value.size > 500 * 1024 * 1024:  # 500MB
+        raise ValidationError("El archivo es demasiado grande (máximo 500MB).")
 
 class TrainingPlanForm(forms.ModelForm):
     class Meta:
         model = TrainingPlan
-        fields = ['name', 'client', 'start_date', 'end_date']
-        
-        # Con widgets, personalizamos cómo se muestra cada campo en el HTML.
+        fields = ['name', 'client', 'start_date', 'end_date', 'notes']  # Agregado 'notes'
         widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'form-control', 
-                'placeholder': 'Ej: Plan de Volumen Muscular'
-            }),
-            'client': forms.Select(attrs={
-                'class': 'form-select'
-            }),
-            'start_date': forms.DateInput(attrs={
-                'type': 'date', # Esto activa el calendario del navegador.
-                'class': 'form-control'
-            }),
-            'end_date': forms.DateInput(attrs={
-                'type': 'date', # Y aquí también.
-                'class': 'form-control'
-            }),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Plan de Volumen Muscular'}),
+            'client': forms.Select(attrs={'class': 'form-select'}),
+            'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
-
-        # Opcional: Para ordenar las etiquetas en español si no lo están ya
         labels = {
             'name': 'Nombre del Plan',
             'client': 'Cliente',
             'start_date': 'Fecha de Inicio',
             'end_date': 'Fecha de Fin',
+            'notes': 'Notas',
         }
-
 
 class WorkoutForm(forms.ModelForm):
     class Meta:
@@ -51,7 +42,7 @@ class WorkoutExerciseForm(forms.ModelForm):
     exercise = forms.ModelChoiceField(queryset=Exercise.objects.all())
     class Meta:
         model = WorkoutExercise
-        fields = ['exercise', 'sets', 'reps_target', 'rir_target', 'rpe_target', 'rest_period_seconds', 'notes', 'order']
+        fields = ['exercise', 'sets', 'reps_target', 'rir_target', 'rpe_target', 'rest_period_seconds', 'notes', 'order', 'video_required']  # Agregado 'video_required'
         widgets = {
             'exercise': forms.Select(attrs={'class': 'form-select'}),
             'sets': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
@@ -61,6 +52,7 @@ class WorkoutExerciseForm(forms.ModelForm):
             'rest_period_seconds': forms.NumberInput(attrs={'class': 'form-control', 'min': 10}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'order': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'video_required': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 class ExerciseLogForm(forms.ModelForm):
@@ -86,6 +78,11 @@ class ExerciseLogForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'form-control'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['video_log'].validators.append(validate_file_size)
+        self.fields['video_log'].validators.append(FileExtensionValidator(allowed_extensions=['mp4', 'avi', 'mov']))  # Solo videos
+
 class WarmupForm(forms.ModelForm):
     class Meta:
         model = Warmup
@@ -98,11 +95,10 @@ class WarmupForm(forms.ModelForm):
             'type': forms.Select(attrs={'class': 'form-select'}),
         }
 
-
 class ClientCreationForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email', 'rut', 'first_name', 'last_name' ,'password']
+        fields = ['username', 'email', 'rut', 'first_name', 'last_name', 'password']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
@@ -111,11 +107,6 @@ class ClientCreationForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'password': forms.PasswordInput(attrs={'class': 'form-control'}),
         }
-
-
-
-
-
 
 class ExerciseForm(forms.ModelForm):
     class Meta:

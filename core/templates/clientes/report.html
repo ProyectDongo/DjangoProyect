@@ -184,9 +184,13 @@
                         </div>
                         <div class="mb-4">
                             <label for="id_video_log" class="form-label fw-semibold">
-                                <i class="bi bi-camera-video me-1"></i>Video (opcional)
+                                <i class="bi bi-camera-video me-1"></i>Video (opcional{% if workout_exercise.video_required %} - Requerido{% endif %})
                             </label>
                             {{ form.video_log }}
+                        </div>
+                        <!-- Barra de progreso -->
+                        <div class="progress mb-3" id="progressBar" style="display: none; height: 20px;">
+                            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
                         </div>
                         <div class="mb-4">
                             <label for="id_status" class="form-label fw-semibold">
@@ -391,4 +395,41 @@
         }
     }
 </style>
+
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = progressBar.querySelector('.progress-bar');
+        progressBar.style.display = 'block';
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        }).then(response => {
+            if (response.ok) {
+                window.location.href = '{% url "view_plan" workout_exercise.workout.plan.id %}';
+            } else {
+                alert('Error en la subida');
+            }
+        }).catch(error => console.error('Error:', error));
+
+        // Monitorear progreso (usando XMLHttpRequest para progress event)
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', this.action, true);
+        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+        xhr.upload.onprogress = function(event) {
+            if (event.lengthComputable) {
+                const percent = Math.round((event.loaded / event.total) * 100);
+                progressFill.style.width = percent + '%';
+                progressFill.textContent = percent + '%';
+            }
+        };
+        xhr.send(formData);
+    });
+</script>
 {% endblock %}

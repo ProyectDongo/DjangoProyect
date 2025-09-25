@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Progresos - {{ plan.name }}{% endblock %}
+{% block content %}
+
+        {% if user.role == 'ENTRENADOR' %}
+                                    
+                                    <a href="{% url 'trainer_dashboard' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Volver al Dashboard
+                                </a>
+                                    
+                                    {% elif user.role == 'CLIENTE'  %}
+                                    <a href="{% url 'client_dashboard' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Volver al Dashboard
+                                </a>
+                                    {% endif %}
+<!-- Incluir Chart.js CDN aquí antes de usarlo -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="container py-4">
+    <h1>Progresos en {{ plan.name }}</h1>
+    {% for exercise, data in chart_data.items %}
+    <div class="card mb-4">
+        <div class="card-header">{{ exercise }}</div>
+        <div class="card-body">
+            <canvas id="chart_{{ forloop.counter }}"></canvas>
+        </div>
+    </div>
+    <script>
+        new Chart(document.getElementById('chart_{{ forloop.counter }}'), {
+            type: 'line',
+            data: {
+                labels: {{ data.dates|safe }},
+                datasets: [{
+                    label: 'Peso (kg)',
+                    data: {{ data.weights|safe }},
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }, {
+                    label: 'Reps',
+                    data: {{ data.reps|safe }},
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+    </script>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -19,9 +19,18 @@
                         </span>
                     </div>
                 </div>
-                <a href="{% url 'trainer_dashboard' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i>Volver al Dashboard
-                </a>
+                 {% if user.role == 'ENTRENADOR' %}
+
+                    <a href="{% url 'trainer_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver al Dashboard
+                    </a>
+
+                {% elif user.role == 'CLIENTE'  %}
+                    <a href="{% url 'client_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver al Dashboard
+                     </a>
+                    {% endif %}
+
             </div>
         </div>
     </div>
@@ -170,9 +179,17 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{% url 'trainer_dashboard' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-1"></i>Volver al Dashboard
-                        </a>
+                                {% if user.role == 'ENTRENADOR' %}
+                                    
+                                    <a href="{% url 'trainer_dashboard' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Volver al Dashboard
+                                </a>
+                                    
+                                    {% elif user.role == 'CLIENTE'  %}
+                                    <a href="{% url 'client_dashboard' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Volver al Dashboard
+                                </a>
+                                    {% endif %}
                         <a href="{% url 'view_plan' log.workout_exercise.workout.plan.id %}" class="btn btn-outline-primary">
                             <i class="bi bi-clipboard-data me-1"></i>Ver Plan Completo
                         </a>
@@ -253,51 +270,51 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
-    
+
     .card {
         border-radius: 0.75rem;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    
+
     .card:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
     }
-    
+
     .metric-card {
         transition: all 0.3s ease;
         background: white;
     }
-    
+
     .metric-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-    
+
     .metric-value {
         line-height: 1;
         margin-bottom: 0.5rem;
     }
-    
+
     .metric-label {
         font-size: 0.875rem;
         margin-bottom: 0.5rem;
     }
-    
+
     .exercise-main-info {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         border: 1px solid #dee2e6;
     }
-    
+
     .video-container {
         background: #000;
         position: relative;
     }
-    
+
     .exercise-video {
         border-radius: 0.5rem;
     }
-    
+
     .video-thumbnail {
         height: 120px;
         display: flex;
@@ -305,15 +322,15 @@
         justify-content: center;
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     }
-    
+
     .notes-content {
         border-left: 4px solid #198754;
     }
-    
+
     .comparison-card {
         background: #f8f9fa;
     }
-    
+
     .btn-excel {
         background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
         border: none;
@@ -322,43 +339,43 @@
         font-weight: 500;
         transition: all 0.3s ease;
     }
-    
+
     .btn-excel:hover {
         background: linear-gradient(135deg, #157347 0%, #0b5ed7 100%);
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         color: white;
     }
-    
+
     .badge {
         font-weight: 500;
         padding: 0.5rem 0.75rem;
     }
-    
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .display-6 {
             font-size: 2rem;
         }
-        
+
         .metric-card {
             margin-bottom: 1rem;
         }
-        
+
         .d-grid {
             gap: 0.5rem;
         }
     }
-    
+
     @media (max-width: 576px) {
         .h2 {
             font-size: 1.5rem;
         }
-        
+
         .display-6 {
             font-size: 1.75rem;
         }
-        
+
         .exercise-main-info {
             margin-bottom: 1rem;
         }
@@ -375,12 +392,12 @@
                 // Podríamos agregar tracking de reproducción aquí
                 console.log('Video started playing');
             });
-            
+
             video.addEventListener('ended', function() {
                 console.log('Video finished playing');
             });
         }
-        
+
         // Smooth scroll para anchors
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {

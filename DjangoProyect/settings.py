@@ -13,8 +13,11 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv  # Importa para cargar .env
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+
 # Carga las variables de entorno desde .env
-load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +32,7 @@ SECRET_KEY = 'django-insecure-mofu&_@&dxk5cxtc+-h$w%qqyre=&(uite+-uzr0mxn$$bu998
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.ngrok-free.app', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['Flametraining.pythonanywhere.com', 'localhost', '127.0.0.1','.ngrok-free.app']
 
 CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app']
 
@@ -45,13 +48,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
-    'ejercicios',
     'entrenamiento',
     'evaluacion',
     'harware',
     'nutricion',
-    'storages', 
-    
+    'storages',
+
 
 ]
 
@@ -74,7 +76,7 @@ ROOT_URLCONF = 'DjangoProyect.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -89,29 +91,20 @@ TEMPLATES = [
 WSGI_APPLICATION = 'DjangoProyect.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-#DATABASES = {
-#       'ENGINE': 'django.db.backends.mysql',
-      #  'NAME': 'proyectt',
-      #  'USER': 'root',
-     #   'PASSWORD': '',
-    #    'HOST': 'localhost',
-   #     'PORT': '3306',
-  #      'OPTIONS': {
- #           'init_command': 'SET default_storage_engine=INNODB',
- #       }
-#    }
-#}
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',   # archivo de DB en la raíz del proyecto
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'flame',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': 'SET default_storage_engine=INNODB',
+        }
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -146,10 +139,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-
 STATIC_URL = 'static/'
-
-STATICFILES_DIRS = [os.path.join(BASE_DIR,'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Puedes mantener esto como fallback para desarrollo local, pero con STORAGES no se usará para uploads a Cloudinary.
@@ -177,7 +171,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Sesiones cierran al cerrar el navegado
 # Backblaze B2 Storage Configuration
 
 # Cargar credenciales desde .env
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')  # 0053b1747bdf37d0000000003
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')  # tu applicationKey real
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')  # flametraining
 AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')  # https://s3.us-east-005.backblazeb2.com
@@ -185,7 +179,29 @@ AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.us-east-005.backblazeb2.co
 AWS_DEFAULT_ACL = 'public-read'  # Hace los archivos públicos por default (coincide con tu bucket público)
 AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}  # Caché para optimización
 AWS_S3_FILE_OVERWRITE = False  # Evita sobrescribir archivos existentes
+AWS_S3_REGION_NAME = 'us-east-005'
+
 
 # Usa B2 como almacenamiento predeterminado para media (videos)
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            # Opcionalmente, puedes mover aquí configuraciones específicas si quieres personalizar.
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",  # O usa 'whitenoise.storage.CompressedManifestStaticFilesStorage' si usas WhiteNoise.
+    },
+}
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'  # https://flametraining.s3.us-east-005.backblazeb2.com/
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

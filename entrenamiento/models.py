@@ -1,9 +1,9 @@
 from django.db import models
-from django.conf import settings  
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from datetime import timedelta  
-
-
+from django.utils.crypto import get_random_string
+import datetime
+from datetime import timedelta
 
 class Exercise(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name=_("Nombre del Ejercicio"))
@@ -14,8 +14,6 @@ class Exercise(models.Model):
 
     def __str__(self):
         return self.name
-    
-
 
 class Warmup(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Nombre del Calentamiento"))
@@ -26,19 +24,16 @@ class Warmup(models.Model):
 
     def __str__(self):
         return self.name
-    
-
-
 
 class TrainingPlan(models.Model):
     trainer = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # Cambiado de User
+        settings.AUTH_USER_MODEL,
         related_name='created_plans',
         on_delete=models.CASCADE,
         verbose_name=_("Entrenador")
     )
     client = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # Cambiado de User
+        settings.AUTH_USER_MODEL,
         related_name='assigned_plans',
         on_delete=models.CASCADE,
         verbose_name=_("Cliente")
@@ -48,32 +43,33 @@ class TrainingPlan(models.Model):
     end_date = models.DateField(verbose_name=_("Fecha de Fin"))
     status = models.CharField(max_length=20, default='active', choices=[('active', 'Activo'), ('completed', 'Completado')], verbose_name=_("Estado"))
     notes = models.TextField(blank=True, verbose_name=_("Notas"))
-    
+
     def __str__(self):
         return f"Plan '{self.name}' para {self.client.username}"
-    
-
-
 
 class Workout(models.Model):
     plan = models.ForeignKey(TrainingPlan, related_name='workouts', on_delete=models.CASCADE, verbose_name=_("Plan"))
     week_number = models.PositiveIntegerField(verbose_name=_("Número de Semana"))
     day_of_week = models.PositiveIntegerField(verbose_name=_("Día de la Semana (1=Lunes)"))
     title = models.CharField(max_length=200, verbose_name=_("Título del Entrenamiento"))
-    date = models.DateField(null=True, blank=True, verbose_name=_("Fecha del Entrenamiento"))  # CAMBIO: Campo agregado
+    date = models.DateField(null=True, blank=True, verbose_name=_("Fecha del Entrenamiento"))
 
     def __str__(self):
         return f"{self.plan.name} - Semana {self.week_number}, Día {self.day_of_week}: {self.title}"
 
     def save(self, *args, **kwargs):
-        # CAMBIO: Calcular fecha automáticamente si no está seteada
         if not self.date and self.plan and self.plan.start_date:
             delta_days = (self.week_number - 1) * 7 + (self.day_of_week - 1)
             self.date = self.plan.start_date + timedelta(days=delta_days)
         super().save(*args, **kwargs)
 
-
-
+    def is_complete(self):
+        # Verifica si todos los ejercicios tienen al menos un log
+        exercises = self.exercises.all()
+        for ex in exercises:
+            if not ExerciseLog.objects.filter(workout_exercise=ex).exists():
+                return False
+        return True
 
 class WorkoutExercise(models.Model):
     workout = models.ForeignKey(Workout, related_name='exercises', on_delete=models.CASCADE, verbose_name=_("Entrenamiento"))
@@ -85,13 +81,14 @@ class WorkoutExercise(models.Model):
     rest_period_seconds = models.PositiveIntegerField(default=60, verbose_name=_("Descanso (segundos)"))
     notes = models.TextField(blank=True, verbose_name=_("Notas"))
     order = models.PositiveIntegerField(default=1, verbose_name=_("Orden en el Workout"))
+    video_required = models.BooleanField(default=False, verbose_name=_("Video Requerido"))  # NUEVO CAMPO
 
     class Meta:
         ordering = ['order']
 
     def __str__(self):
         return f"{self.sets}x{self.reps_target} de {self.exercise.name}"
-    
+
     def get_last_log(self):
         return ExerciseLog.objects.filter(workout_exercise=self).order_by('-date_completed').first()
 

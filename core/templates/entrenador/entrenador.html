@@ -166,6 +166,9 @@
                                     <a href="{% url 'edit_plan' plan.id %}" class="btn btn-sm btn-outline-secondary">
                                         <i class="bi bi-pencil"></i>
                                     </a>
+                                    <a href="{% url 'progress_view' plan.id %}" class="btn btn-sm btn-outline-info">  <!-- NUEVO: Link a progreso -->
+                                        <i class="bi bi-graph-up"></i> Progreso
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -210,6 +213,13 @@
                                     <a href="{% url 'client_logs' client.id %}" class="btn btn-sm btn-outline-info">
                                         <i class="bi bi-file-earmark-text"></i>
                                     </a>
+                                    {% with active_plan=client.active_plan %}  <!-- CAMBIO: Usa client.active_plan -->
+                                    {% if active_plan %}
+                                    <a href="{% url 'progress_view' active_plan.id %}" class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-graph-up"></i> Progreso
+                                    </a>
+                                    {% endif %}
+                                    {% endwith %}
                                 </div>
                             </td>
                         </tr>
@@ -293,7 +303,7 @@
                             <td class="excel-cell text-center">6 o MENOS</td>
                             <td class="excel-cell mobile-hidden">Calentamiento o muy poca carga</td>
                             <td class="excel-cell text-center">4 o MÁS</td>
-                            <td class="excel-cell mobile-hidden">Sería muy fácil</td>
+                            <td class="excel-cell mobile-hidden">Sería muy muy fácil</td>
                             <td class="excel-cell text-center">RPE 6 = RIR 4+</td>
                         </tr>
                     </tbody>
@@ -404,4 +414,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %}  
