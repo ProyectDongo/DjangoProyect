@@ -1,0 +1,99 @@
+ /* Estilos personalizados para mejorar el diseño */
+    .text-gradient {
+        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .brand-highlight {
+        color: #198754;
+        -webkit-text-fill-color: #198754;
+    }
+    
+    .gradient-header {
+        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
+        border: none;
+    }
+    
+    .features-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    
+    .features-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-item {
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .feature-item:hover {
+        background-color: rgba(25, 135, 84, 0.03);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    
+    .hero-content {
+        padding-right: 1.5rem;
+    }
+    
+    .benefit-icon {
+        width: 80px;
+        height: 80px;
+        transition: transform 0.3s ease;
+    }
+    
+    .benefit-icon:hover {
+        transform: scale(1.1);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #157347 0%, #0b5ed7 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .hero-content {
+            padding-right: 0;
+            text-align: center;
+        }
+        
+        .display-4 {
+            font-size: 2.5rem;
+        }
+        
+        .hero-buttons {
+            justify-content: center;
+        }
+        
+        .feature-item {
+            margin-bottom: 1rem;
+        }
+        
+        .benefit-icon {
+            width: 70px;
+            height: 70px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .display-4 {
+            font-size: 2rem;
+        }
+        
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+    }

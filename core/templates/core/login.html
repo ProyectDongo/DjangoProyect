@@ -1,118 +1,12 @@
+ 
 {% extends 'base.html' %}
 {% block title %}Iniciar Sesión{% endblock %}
-{% block content %}
- <style>
-        :root {
-            --primary-color: #2E8B57;
-            --primary-dark: #1F6B41;
-            --secondary-color: #6c757d;
-            --light-bg: #f8f9fa;
-            --card-shadow: 0 8px 30px rgba(0,0,0,0.08);
-        }
-        
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            line-height: 1.6;
-        }
-        
-        .login-container {
-            width: 100%;
-            max-width: 450px;
-            padding: 20px;
-        }
-        
-        .btn-excel {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-            font-weight: 600;
-            padding: 12px 24px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-excel:hover {
-            background-color: var(--primary-dark);
-            border-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
-        }
-        
-        .excel-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            border-radius: 12px 12px 0 0 !important;
-        }
-        
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-        }
-        
-        .form-control {
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid #e1e5e9;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.25);
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 8px;
-        }
-        
-        .alert {
-            border-radius: 8px;
-            border: none;
-        }
-        
-        .back-link {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        
-        .back-link:hover {
-            color: var(--primary-dark);
-        }
-        
-        .animate-fade-in {
-            animation: fadeIn 0.8s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @media (max-width: 576px) {
-            .login-container {
-                padding: 15px;
-            }
-            
-            .card-body {
-                padding: 25px !important;
-            }
-        }
-    </style>
-
-    {% block body %}
+{% block body %}
     {% endblock %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'bootstrap/css/login.css' %}">
+
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
@@ -124,7 +18,7 @@
                 </div>
                 <div class="card-body p-5">
                     <h2 class="h4 mb-4 text-center">Iniciar Sesión</h2>
-                    <form method="post">
+                    <form method="post" id="loginForm">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="id_username" class="form-label">Usuario</label>
@@ -134,8 +28,9 @@
                             <label for="id_password" class="form-label">Contraseña</label>
                             <input type="password" name="password" class="form-control" id="id_password" required>
                         </div>
-                        <button type="submit" class="btn btn-excel w-100 py-2">
+                       <button type="submit" class="btn btn-excel w-100 py-2" id="submitBtn">
                             <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                         </button>
                     </form>
                     {% if form.errors %}
@@ -150,4 +45,27 @@
         </div>
     </div>
 </div>
+<script>
+    document.querySelector('#loginForm').addEventListener('submit', function(e) {
+        console.log('Login submit triggered');
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.querySelector('.spinner-border').classList.remove('d-none');
+        btn.querySelector('i').classList.add('d-none');
+        btn.textContent = 'Cargando... ';
+        
+        // Simular delay para testing en local (comenta en prod)
+        setTimeout(() => { this.submit(); }, 3000);  // e.preventDefault() y manual submit si quieres delay
+    });
+
+    // Reset si hay errors
+    {% if form.errors %}
+    console.log('Form errors present, resetting button');
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = false;
+    btn.querySelector('.spinner-border').classList.add('d-none');
+    btn.querySelector('i').classList.remove('d-none');
+    btn.textContent = 'Ingresar';
+    {% endif %}
+</script>
 {% endblock %}

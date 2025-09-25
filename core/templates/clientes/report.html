@@ -143,7 +143,7 @@
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" enctype="multipart/form-data" id="exerciseForm">
                         {% csrf_token %}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
@@ -187,10 +187,17 @@
                                 <i class="bi bi-camera-video me-1"></i>Video (opcional{% if workout_exercise.video_required %} - Requerido{% endif %})
                             </label>
                             {{ form.video_log }}
+                            <small class="form-text text-muted">
+                                Tip: Para subir más rápido, graba en resolución baja (720p o menos). 
+                                - iPhone: Ajustes > Cámara > Grabar Video > 720p HD a 30 cps.
+                                - Android: App Cámara > Configuración > Resolución Video > HD (720p).
+                                Si el video es grande, se comprimirá automáticamente antes de subir (reduce a 720p). 
+                                Usa apps como "Video Compressor" si prefieres manual. Máximo: 200MB.
+                            </small>
                         </div>
                         <!-- Barra de progreso -->
                         <div class="progress mb-3" id="progressBar" style="display: none; height: 20px;">
-                            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
                         </div>
                         <div class="mb-4">
                             <label for="id_status" class="form-label fw-semibold">
@@ -202,8 +209,9 @@
                             <a href="{% url 'view_plan' workout_exercise.workout.plan.id %}" class="btn btn-secondary order-2 order-sm-1">
                                 <i class="bi bi-x-circle me-1"></i>Cancelar
                             </a>
-                            <button type="submit" class="btn btn-excel order-1 order-sm-2">
+                            <button type="submit" class="btn btn-excel order-1 order-sm-2" id="submitReportBtn">
                                 <i class="bi bi-send me-1"></i>Enviar Reporte
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                             </button>
                         </div>
                     </form>
@@ -286,150 +294,304 @@
     </div>
 </div>
 
+<!-- Overlay simple para loading (reemplaza al modal) -->
+<div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; text-align: center; color: white;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3" id="loadingMessage">Subiendo video, por favor espere... No cierre la página.</p>
+    </div>
+</div>
+
 <style>
-    /* Estilos personalizados para mejorar el diseño */
-    .text-gradient {
-        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+    /* Estilos para overlay (ajusta si necesitas) */
+    #loadingOverlay {
+        backdrop-filter: blur(5px);  /* Blur para UX en móviles */
     }
-    
-    .card {
-        border-radius: 0.75rem;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-    }
-    
-    .card-header {
-        border-radius: 0.75rem 0.75rem 0 0 !important;
-    }
-    
-    .form-control, .form-select {
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
-        border: 1px solid #dee2e6;
-        transition: all 0.2s ease;
-    }
-    
-    .form-control:focus, .form-select:focus {
-        border-color: #198754;
-        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
-    }
-    
-    .btn-excel {
-        background: linear-gradient(135deg, #198754 0%, #0d6efd 100%);
-        border: none;
-        color: white;
-        border-radius: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-excel:hover {
-        background: linear-gradient(135deg, #157347 0%, #0b5ed7 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        color: white;
-    }
-    
-    .table th {
-        font-weight: 600;
-        font-size: 0.875rem;
-    }
-    
-    .table td {
-        font-size: 0.875rem;
-        vertical-align: middle;
-    }
-    
-    .exercise-row {
-        transition: background-color 0.2s ease;
-    }
-    
-    .exercise-row:hover {
-        background-color: #f8f9fa;
-    }
-    
-    .badge {
-        font-size: 0.7rem;
-        padding: 0.35rem 0.5rem;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .sticky-top {
-            position: relative !important;
-            top: 0 !important;
-        }
-        
-        .table-responsive {
-            font-size: 0.8rem;
-        }
-        
-        .btn {
-            width: 100%;
-        }
-        
-        .d-flex.flex-column.flex-sm-row .btn {
-            width: auto;
-        }
-    }
-    
-    @media (max-width: 576px) {
-        .h2 {
-            font-size: 1.5rem;
-        }
-        
-        .card-body {
-            padding: 1rem;
-        }
-        
-        .table th, .table td {
-            padding: 0.5rem;
-        }
+    body.loading-overlay-active {
+        overflow: hidden !important;
+        position: fixed;
+        width: 100%;
     }
 </style>
 
+<!-- Script de FFmpeg (versión confirmada como la más reciente al 25/09/2025) -->
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.15/dist/umd/ffmpeg.js"></script>
+
 <script>
-    document.getElementById('uploadForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const progressBar = document.getElementById('progressBar');
-        const progressFill = progressBar.querySelector('.progress-bar');
-        progressBar.style.display = 'block';
+    // Esperar a que el DOM esté cargado
+    document.addEventListener('DOMContentLoaded', function() {
+        // FFmpeg ya no se desestructura aquí para evitar errores prematuros. Se maneja dentro de compressIfNeeded.
 
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            }
-        }).then(response => {
-            if (response.ok) {
-                window.location.href = '{% url "view_plan" workout_exercise.workout.plan.id %}';
+        function handleUploadWithProgress(form, progressBar, progressFill, successUrl) {
+            console.log('Starting upload process');
+            const submitBtn = document.getElementById('submitReportBtn');
+            const videoInput = document.getElementById('id_video_log');
+            const formData = new FormData(form);
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingMessage = document.getElementById('loadingMessage');
+
+            // Mostrar loading en botón
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Procesando... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            // Mostrar overlay y progreso al inicio
+            console.log('Showing overlay at start');
+            loadingOverlay.style.display = 'block';
+            document.body.classList.add('loading-overlay-active');  // Bloquear scroll
+            progressBar.style.display = 'block';
+            loadingMessage.textContent = 'Preparando envío... No cierre la página.';
+
+            if (videoInput.files.length) {
+                let file = videoInput.files[0];
+                const maxSize = 200 * 1024 * 1024;
+                const ext = file.name.split('.').pop().toLowerCase();
+                const allowedExtensions = ['mp4', 'avi', 'mov'];
+
+                if (!allowedExtensions.includes(ext)) {
+                    resetSubmitBtn(submitBtn);
+                    hideOverlay();
+                    progressBar.style.display = 'none';
+                    alert('Extensión no permitida. Solo mp4, avi, mov.');
+                    return;
+                }
+                if (!file.type.startsWith('video/')) {
+                    resetSubmitBtn(submitBtn);
+                    hideOverlay();
+                    progressBar.style.display = 'none';
+                    alert('El archivo no es un video válido.');
+                    return;
+                }
+                if (file.size > maxSize) {
+                    resetSubmitBtn(submitBtn);
+                    hideOverlay();
+                    progressBar.style.display = 'none';
+                    alert('El video es demasiado grande (máx 200MB).');
+                    return;
+                }
+
+                // Compresión con try/catch adicional
+                async function compressIfNeeded() {
+                    if (file.size > 10 * 1024 * 1024) {
+                        loadingMessage.textContent = 'Comprimiendo video para subir más rápido... No cierre la página.';
+                        try {
+                            // Desestructuramos FFmpeg aquí, solo cuando es necesario
+                            if (typeof FFmpeg === 'undefined') {
+                                throw new Error('FFmpeg library not loaded');
+                            }
+                            const { createFFmpeg, fetchFile } = FFmpeg;
+                            // Modo single-threaded para compatibilidad en móviles
+                            const ffmpeg = createFFmpeg({
+                                log: true,
+                                corePath: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js'
+                            });
+
+                            if (typeof SharedArrayBuffer === 'undefined') {
+                                console.log('No SharedArrayBuffer, skipping compression');
+                                throw new Error('Skipping compression due to browser compatibility');
+                            }
+
+                            if (!ffmpeg.isLoaded()) await ffmpeg.load();
+                            const inputName = 'input.' + ext;
+                            const outputName = 'output.mp4';
+                            ffmpeg.FS('writeFile', inputName, await fetchFile(file));
+                            await ffmpeg.run('-i', inputName, '-vf', 'scale=-2:720', '-c:v', 'libx264', '-crf', '28', '-preset', 'fast', '-b:v', '1000k', outputName);
+                            const data = ffmpeg.FS('readFile', outputName);
+                            file = new File([data.buffer], 'compressed.mp4', { type: 'video/mp4' });
+                            console.log('Compression done, new size:', file.size);
+                        } catch (err) {
+                            console.error('Compression error:', err);
+                            loadingMessage.textContent = 'Subiendo video sin compresión... No cierre la página.';
+                            // Continuar sin compresión, overlay permanece visible
+                        }
+                    }
+                    loadingMessage.textContent = 'Subiendo video... No cierre la página.';
+                    uploadMultipart(file);
+                }
+
+                // Subida multipart
+                function uploadMultipart(fileToUpload) {
+                    const chunkSize = 5 * 1024 * 1024;
+                    const chunks = Math.ceil(fileToUpload.size / chunkSize);
+                    const initData = new FormData();
+                    initData.append('file_name', fileToUpload.name);
+                    initData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                    
+                    fetch('{% url "initiate_multipart_upload" %}', {
+                        method: 'POST',
+                        body: initData
+                    }).then(response => {
+                        if (!response.ok) throw new Error('Initiate failed: ' + response.statusText);
+                        return response.json();
+                    }).then(data => {
+                        if (data.error) throw new Error(data.error);
+                        const uploadId = data.upload_id;
+                        const key = data.key;
+                        let parts = [];
+                        let completed = 0;
+                        let uploadedBytes = 0;
+                        
+                        for (let i = 0; i < chunks; i++) {
+                            let start = i * chunkSize;
+                            let end = Math.min(start + chunkSize, fileToUpload.size);
+                            let chunk = fileToUpload.slice(start, end);
+                            
+                            const partData = new FormData();
+                            partData.append('key', key);
+                            partData.append('upload_id', uploadId);
+                            partData.append('part_number', i + 1);
+                            partData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                            
+                            fetch('{% url "generate_presigned_part" %}', {
+                                method: 'POST',
+                                body: partData
+                            }).then(res => {
+                                if (!res.ok) throw new Error('Generate part failed: ' + res.statusText);
+                                return res.json();
+                            }).then(part => {
+                                if (part.error) throw new Error(part.error);
+                                const xhr = new XMLHttpRequest();
+                                xhr.open('PUT', part.url, true);
+                                // No establecer Content-Type para parts, para evitar mismatch de signature
+                                
+                                xhr.upload.onprogress = function(event) {
+                                    if (event.lengthComputable) {
+                                        const chunkProgress = event.loaded / event.total;
+                                        const totalPercent = Math.round(((uploadedBytes + (chunkProgress * (end - start))) / fileToUpload.size) * 100);
+                                        progressFill.style.width = totalPercent + '%';
+                                        progressFill.textContent = totalPercent + '%';
+                                    }
+                                };
+                                
+                                xhr.onload = function() {
+                                    if (xhr.status === 200) {
+                                        const etag = xhr.getResponseHeader('ETag').replace(/"/g, '');
+                                        parts.push({ ETag: etag, PartNumber: i + 1 });
+                                        completed++;
+                                        uploadedBytes += (end - start);
+                                        if (completed === chunks) {
+                                            const completeData = new FormData();
+                                            completeData.append('key', key);
+                                            completeData.append('upload_id', uploadId);
+                                            completeData.append('parts', JSON.stringify(parts));
+                                            completeData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                                            
+                                            fetch('{% url "complete_multipart_upload" %}', {
+                                                method: 'POST',
+                                                body: completeData
+                                            }).then(res => {
+                                                if (!res.ok) throw new Error('Complete failed: ' + res.statusText);
+                                                return res.json();
+                                            }).then(complete => {
+                                                if (complete.success) {
+                                                    formData.delete('video_log');
+                                                    formData.append('video_key', key);
+                                                    fetch(form.action, {
+                                                        method: 'POST',
+                                                        body: formData
+                                                    }).then(response => {
+                                                        resetSubmitBtn(submitBtn);
+                                                        progressBar.style.display = 'none';
+                                                        hideOverlay();
+                                                        if (response.ok || response.redirected) {
+                                                            window.location.href = successUrl;
+                                                        } else {
+                                                            alert('Error en submit final');
+                                                        }
+                                                    }).catch(err => {
+                                                        resetSubmitBtn(submitBtn);
+                                                        hideOverlay();
+                                                        progressBar.style.display = 'none';
+                                                        alert('Error en submit final: ' + err);
+                                                    });
+                                                } else {
+                                                    throw new Error('Complete failed');
+                                                }
+                                            }).catch(err => {
+                                                resetSubmitBtn(submitBtn);
+                                                hideOverlay();
+                                                progressBar.style.display = 'none';
+                                                alert('Error completando upload: ' + err);
+                                            });
+                                        }
+                                    } else {
+                                        throw new Error('Part upload failed with status ' + xhr.status);
+                                    }
+                                };
+                                
+                                xhr.onerror = function() {
+                                    resetSubmitBtn(submitBtn);
+                                    hideOverlay();
+                                    progressBar.style.display = 'none';
+                                    alert('Error de red durante la subida de parte');
+                                };
+                                
+                                xhr.send(chunk);
+                            }).catch(err => {
+                                resetSubmitBtn(submitBtn);
+                                hideOverlay();
+                                progressBar.style.display = 'none';
+                                alert('Error generando URL para parte: ' + err);
+                            });
+                        }
+                    }).catch(err => {
+                        resetSubmitBtn(submitBtn);
+                        hideOverlay();
+                        progressBar.style.display = 'none';
+                        alert('Error iniciando multipart: ' + err);
+                    });
+                }
+
+                // Iniciar proceso
+                compressIfNeeded().catch(err => {
+                    console.error('Global compression error:', err);
+                    alert('Error en compresión: ' + err + '. Intentando subir original...');
+                    loadingMessage.textContent = 'Subiendo video sin compresión... No cierre la página.';
+                    uploadMultipart(file);  // Fallback con overlay visible
+                });
             } else {
-                alert('Error en la subida');
+                // Sin video
+                loadingMessage.textContent = 'Enviando reporte... No cierre la página.';
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                }).then(response => {
+                    resetSubmitBtn(submitBtn);
+                    progressBar.style.display = 'none';
+                    hideOverlay();
+                    if (response.ok || response.redirected) {
+                        window.location.href = successUrl;
+                    } else {
+                        alert('Error en la subida');
+                    }
+                }).catch(err => {
+                    resetSubmitBtn(submitBtn);
+                    hideOverlay();
+                    progressBar.style.display = 'none';
+                    alert('Error de red: ' + err);
+                });
             }
-        }).catch(error => console.error('Error:', error));
+        }
 
-        // Monitorear progreso (usando XMLHttpRequest para progress event)
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', this.action, true);
-        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-        xhr.upload.onprogress = function(event) {
-            if (event.lengthComputable) {
-                const percent = Math.round((event.loaded / event.total) * 100);
-                progressFill.style.width = percent + '%';
-                progressFill.textContent = percent + '%';
-            }
-        };
-        xhr.send(formData);
+        function resetSubmitBtn(btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-send me-1"></i>Enviar Reporte';
+        }
+
+        function hideOverlay() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'none';
+            document.body.classList.remove('loading-overlay-active');
+        }
+
+        // Listener para el form
+        document.querySelector('#exerciseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = progressBar.querySelector('.progress-bar');
+            handleUploadWithProgress(this, progressBar, progressFill, '{% url "view_plan" workout_exercise.workout.plan.id %}');
+        });
     });
 </script>
 {% endblock %}

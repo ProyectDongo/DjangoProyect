@@ -4,7 +4,9 @@ from .views import (
     trainer_dashboard, create_plan, add_workout, add_exercise, client_dashboard,
     view_plan, log_exercise, update_warmup, create_client, trainer_plan_detail,
     workout_detail, edit_plan, edit_workout, edit_workout_exercise, delete_workout_exercise,
-    client_statistics, view_log,client_logs,create_exercise,progress_view
+    client_statistics, view_log,client_logs,create_exercise,progress_view,
+    generate_presigned_url,initiate_multipart_upload,generate_presigned_part,complete_multipart_upload
+
 )
 
 urlpatterns = [
@@ -32,4 +34,8 @@ urlpatterns = [
     path('client/<int:client_id>/logs/', client_logs, name='client_logs'),
     path('create_exercise/', create_exercise, name='create_exercise'),
     path('progress/<int:plan_id>/', progress_view, name='progress_view'),
+    path('generate-presigned/', generate_presigned_url, name='generate_presigned'),
+    path('initiate_multipart/', initiate_multipart_upload, name='initiate_multipart_upload'),
+    path('generate_presigned_part/', generate_presigned_part, name='generate_presigned_part'),
+    path('complete_multipart/', complete_multipart_upload, name='complete_multipart_upload'),
 ]

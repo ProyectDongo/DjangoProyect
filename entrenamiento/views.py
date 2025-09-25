@@ -13,10 +13,17 @@ from django.utils.crypto import get_random_string
 import mimetypes
 from io import BytesIO
 import openpyxl
+import json
 from django.core.mail import EmailMessage
 from django.db.models import Avg
 from openpyxl.styles import Font, Border, Side, Alignment, PatternFill
 from openpyxl.utils import get_column_letter
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+import boto3
+from botocore.exceptions import ClientError
+import uuid 
+from django.core.validators import FileExtensionValidator
 
 # ====================================================================================================================
 # Introducción al Archivo de Vistas
@@ -451,7 +458,6 @@ def view_plan(request, plan_id):
 
 
 # Registrar log de ejercicio. Envía email al trainer con detalles.
-
 @login_required
 def log_exercise(request, workout_exercise_id):
     workout_exercise = get_object_or_404(WorkoutExercise, id=workout_exercise_id, workout__plan__client=request.user)
@@ -459,30 +465,37 @@ def log_exercise(request, workout_exercise_id):
         client=request.user,
         workout_exercise__exercise=workout_exercise.exercise
     ).order_by('-weight_lifted_kg', '-reps_completed').first()
+    
     if request.method == 'POST':
         form = ExerciseLogForm(request.POST, request.FILES)
         if form.is_valid():
-            if workout_exercise.video_required and 'video_log' not in request.FILES:
+            if workout_exercise.video_required and ('video_log' not in request.FILES and 'video_key' not in request.POST):
                 messages.error(request, "Este ejercicio requiere un video.")
                 return render(request, 'clientes/report.html', {'form': form, 'workout_exercise': workout_exercise, 'best_log': best_log})
+            
             log = form.save(commit=False)
             log.client = request.user
             log.workout_exercise = workout_exercise
-            # Validar video tipo
-            if 'video_log' in request.FILES:
+            
+            if 'video_key' in request.POST:
+                log.video_log.name = request.POST['video_key']
+            elif 'video_log' in request.FILES:
                 video_file = request.FILES['video_log']
                 mime_type, _ = mimetypes.guess_type(video_file.name)
                 if not mime_type or not mime_type.startswith('video/'):
                     messages.error(request, "El archivo subido no es un video válido.")
                     return render(request, 'clientes/report.html', {'form': form, 'workout_exercise': workout_exercise, 'best_log': best_log})
-            log.save()  # Sube a B2
-            # Verificar si workout completo y enviar reporte diario
+            
+            log.save()  # Sube a B2 si aplica (pero ahora es direct desde client)
+            
             workout = workout_exercise.workout
             if workout.is_complete():
                 send_daily_report(workout)
+            
             return redirect('view_plan', plan_id=workout_exercise.workout.plan.id)
     else:
         form = ExerciseLogForm()
+    
     context = {
         'form': form,
         'workout_exercise': workout_exercise,
@@ -490,6 +503,135 @@ def log_exercise(request, workout_exercise_id):
     }
     return render(request, 'clientes/report.html', context)
 
+# View para presigned simple (mantenido para fallbacks, pero usaremos multipart)
+@require_POST
+@login_required
+def generate_presigned_url(request):
+    file_name = request.POST.get('file_name')
+    if not file_name:
+        return JsonResponse({'error': 'No file name provided'}, status=400)
+    
+    import os
+    ext = os.path.splitext(file_name)[1][1:].lower()
+    if ext not in ['mp4', 'avi', 'mov']:
+        return JsonResponse({'error': 'Extension not allowed'}, status=400)
+    
+    mime_type, _ = mimetypes.guess_type(file_name)
+    if not mime_type or not mime_type.startswith('video/'):
+        return JsonResponse({'error': 'Invalid file type'}, status=400)
+    
+    unique_key = f'logs/videos/{uuid.uuid4()}_{file_name}'
+    
+    s3_client = boto3.client(
+        's3',
+        endpoint_url=settings.AWS_S3_ENDPOINT_URL,
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+    )
+    
+    try:
+        presigned_url = s3_client.generate_presigned_url(
+            'put_object',
+            Params={
+                'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
+                'Key': unique_key,
+                'ContentType': mime_type
+            },
+            ExpiresIn=7200  # Aumentado a 2 horas
+        )
+        return JsonResponse({'url': presigned_url, 'key': unique_key})
+    except ClientError as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+# Nuevos views para multipart
+@require_POST
+@login_required
+def initiate_multipart_upload(request):
+    file_name = request.POST.get('file_name')
+    if not file_name:
+        return JsonResponse({'error': 'No file name provided'}, status=400)
+    
+    import os
+    ext = os.path.splitext(file_name)[1][1:].lower()
+    if ext not in ['mp4', 'avi', 'mov']:
+        return JsonResponse({'error': 'Extension not allowed'}, status=400)
+    
+    mime_type, _ = mimetypes.guess_type(file_name)
+    if not mime_type or not mime_type.startswith('video/'):
+        return JsonResponse({'error': 'Invalid file type'}, status=400)
+    
+    unique_key = f'logs/videos/{uuid.uuid4()}_{file_name}'
+    
+    s3_client = boto3.client(
+        's3',
+        endpoint_url=settings.AWS_S3_ENDPOINT_URL,
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+    )
+    
+    try:
+        multipart = s3_client.create_multipart_upload(
+            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+            Key=unique_key,
+            ContentType=mime_type
+        )
+        return JsonResponse({'upload_id': multipart['UploadId'], 'key': unique_key})
+    except ClientError as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@require_POST
+@login_required
+def generate_presigned_part(request):
+    key = request.POST.get('key')
+    upload_id = request.POST.get('upload_id')
+    part_number = int(request.POST.get('part_number'))
+    
+    s3_client = boto3.client(
+        's3',
+        endpoint_url=settings.AWS_S3_ENDPOINT_URL,
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+    )
+    
+    try:
+        url = s3_client.generate_presigned_url(
+            'upload_part',
+            Params={
+                'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
+                'Key': key,
+                'UploadId': upload_id,
+                'PartNumber': part_number
+            },
+            ExpiresIn=7200  # 2 horas
+        )
+        return JsonResponse({'url': url})
+    except ClientError as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@require_POST
+@login_required
+def complete_multipart_upload(request):
+    key = request.POST.get('key')
+    upload_id = request.POST.get('upload_id')
+    parts = json.loads(request.POST.get('parts'))  # Lista de {'ETag': etag, 'PartNumber': num}
+    
+    s3_client = boto3.client(
+        's3',
+        endpoint_url=settings.AWS_S3_ENDPOINT_URL,
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+    )
+    
+    try:
+        s3_client.complete_multipart_upload(
+            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+            Key=key,
+            UploadId=upload_id,
+            MultipartUpload={'Parts': parts}
+        )
+        return JsonResponse({'success': True})
+    except ClientError as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 def send_daily_report(workout):
     # Generar Excel con diseño mejorado
