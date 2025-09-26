@@ -17,7 +17,6 @@ urlpatterns = [
     path('add_exercise/<int:workout_id>/', add_exercise, name='add_exercise'),
     path('client/', client_dashboard, name='client_dashboard'),
     path('view_plan/<int:plan_id>/', view_plan, name='view_plan'),
-    path('log_exercise/<int:workout_exercise_id>/', log_exercise, name='log_exercise'),
     path('update_warmup/', update_warmup, name='create_warmup'),
     path('update_warmup/<int:warmup_id>/', update_warmup, name='update_warmup'),
     path('plan/<int:plan_id>/', trainer_plan_detail, name='plan_detail'),
@@ -34,6 +33,9 @@ urlpatterns = [
     path('client/<int:client_id>/logs/', client_logs, name='client_logs'),
     path('create_exercise/', create_exercise, name='create_exercise'),
     path('progress/<int:plan_id>/', progress_view, name='progress_view'),
+
+
+    path('log_exercise/<int:workout_exercise_id>/', log_exercise, name='log_exercise'),
     path('generate-presigned/', generate_presigned_url, name='generate_presigned'),
     path('initiate_multipart/', initiate_multipart_upload, name='initiate_multipart_upload'),
     path('generate_presigned_part/', generate_presigned_part, name='generate_presigned_part'),
