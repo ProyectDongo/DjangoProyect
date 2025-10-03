@@ -17,9 +17,15 @@
             <a href="{% url 'edit_plan' plan.id %}" class="btn btn-sm btn-outline-secondary me-2">
                 <i class="bi bi-pencil me-1"></i>Editar Plan
             </a>
-            <a href="{% url 'add_workout' plan.id %}" class="btn btn-sm btn-excel">
+            <a href="{% url 'add_workout' plan.id %}" class="btn btn-sm btn-excel me-2">
                 <i class="bi bi-plus-circle me-1"></i>Agregar Entrenamiento
             </a>
+            <form action="{% url 'delete_plan' plan.id %}" method="post" style="display: inline;" onsubmit="return confirm('¿Seguro que quieres eliminar este plan? Esto eliminará todas las rutinas y ejercicios asociados.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger">
+                    <i class="bi bi-trash me-1"></i>Eliminar Plan
+                </button>
+            </form>
         </div>
     </div>
 
@@ -31,19 +37,31 @@
             <div class="accordion" id="workoutAccordion">
                 {% for workout in workouts %}
                 <div class="accordion-item">
+                    
                     <h2 class="accordion-header" id="heading{{ workout.id }}">
                         <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ workout.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ workout.id }}">
                             <div class="d-flex justify-content-between w-100 me-3">
+                                
                                 <div>
                                     <span class="fw-bold">Semana {{ workout.week_number }} - Día {{ workout.day_of_week }}</span>: {{ workout.title }}
                                 </div>
+                                
                                 <div>
                                     <span class="badge bg-secondary">{{ workout.exercises.count }} ejercicios</span>
+                                    
                                 </div>
                             </div>
                         </button>
                     </h2>
-                    <div id="collapse{{ workout.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ workout.id }}" data-bs-parent="#workoutAccordion">
+                    
+                    
+                    <div id="collapse{{ workout.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ workout.id }}" data-bs-parent="#workoutAccordion" title="elimar rutina">
+                         <form action="{% url 'delete_workout' workout.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger me-1" onclick="return confirm('¿Estás seguro de que quieres eliminar esta rutina?');">
+                                <i class="bi bi-trash me-1"></i>
+                            </button>
+                        </form>
                         <div class="accordion-body p-0">
                             <div class="table-responsive">
                                 <table class="table table-bordered excel-table m-0">
@@ -89,9 +107,14 @@
                                                 <a href="{% url 'edit_workout_exercise' ex.id %}" class="btn btn-sm btn-outline-secondary me-1">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
-                                                <a href="{% url 'delete_workout_exercise' ex.id %}" class="btn btn-sm btn-outline-danger me-1">
-                                                    <i class="bi bi-trash"></i>
-                                                </a>
+                                                
+                                                <form action="{% url 'delete_workout_exercise' ex.id %}" method="post" class="">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger me-1" onclick="return confirm('¿Estás seguro de que quieres eliminar esta rutina?');">
+                                                        <i class="bi bi-trash me-1"></i>
+                                                    </button>
+                                                </form>
+                                                
                                                 {% if ex.get_last_log %}
                                                 <a href="{% url 'view_log' ex.get_last_log.id %}" class="btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-eye"></i>

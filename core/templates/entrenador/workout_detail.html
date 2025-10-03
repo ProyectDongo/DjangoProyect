@@ -17,9 +17,15 @@
             <a href="{% url 'edit_workout' workout.id %}" class="btn btn-sm btn-outline-secondary me-2">
                 <i class="bi bi-pencil me-1"></i>Editar Entrenamiento
             </a>
-            <a href="{% url 'add_exercise' workout.id %}" class="btn btn-sm btn-excel">
+            <a href="{% url 'add_exercise' workout.id %}" class="btn btn-sm btn-excel me-2">
                 <i class="bi bi-plus-circle me-1"></i>Agregar Ejercicio
             </a>
+            <form action="{% url 'delete_workout' workout.id %}" method="post" class="">
+                  {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger me-1" onclick="return confirm('¿Estás seguro de que quieres eliminar esta rutina?');">
+                        <i class="bi bi-trash me-1"></i>Elimar plan 
+                    </button>
+            </form>
         </div>
     </div>
 
@@ -43,6 +49,7 @@
                             <th>Video</th>
                             <th>Estado</th>
                             <th>Acciones</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -74,9 +81,12 @@
                                 <a href="{% url 'edit_workout_exercise' ex.id %}" class="btn btn-sm btn-outline-secondary me-1">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{% url 'delete_workout_exercise' ex.id %}" class="btn btn-sm btn-outline-danger me-1">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                <form action="{% url 'delete_workout_exercise' ex.id %}" method="post" class="">
+                                    {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger me-1" onclick="return confirm('¿Estás seguro de que quieres eliminar esta rutina?');">
+                                            <i class="bi bi-trash me-1"></i> 
+                                        </button>
+                                </form>
                                 {% if ex.get_last_log %}
                                 <a href="{% url 'view_log' ex.get_last_log.id %}" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-eye"></i>

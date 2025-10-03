@@ -117,6 +117,19 @@ def workout_detail(request, workout_id):
     return render(request, 'entrenador/workout_detail.html', context)
 
 
+@login_required
+def delete_workout(request, workout_id):
+    if request.user.role != 'ENTRENADOR':
+        return redirect('inicio')
+    workout = get_object_or_404(Workout, id=workout_id, plan__trainer=request.user)
+    if request.method == 'POST':
+        plan_id = workout.plan.id
+        workout.delete()
+        messages.success(request, 'Rutina eliminada exitosamente.')
+        return redirect('trainer_plan_detail', plan_id=plan_id)
+    return redirect('workout_detail', workout_id=workout_id)
+
+
 #----------------------- Creación de Clientes - Facilitando la Onboarding --------------------------------------------
 
 # Vista para crear clientes. Permitida solo para ENTRENADOR o NUTRICIONISTA. Usa ClientCreationForm para validación.
@@ -124,7 +137,6 @@ def workout_detail(request, workout_id):
 # Por qué: Facilita el onboarding de clientes nuevos. Generamos una contraseña temporal segura con get_random_string para seguridad inicial.
 # Asignamos rol y assigned_professional automáticamente. Enviamos mensajes de éxito/error con django.contrib.messages para feedback UX.
 # Redirigimos al dashboard tras éxito para flujo continuo.
-
 @login_required
 def create_client(request):
     if request.user.role not in ['ENTRENADOR', 'NUTRICIONISTA']:  # Restricción de roles: Solo profesionales pueden crear clientes.
@@ -142,8 +154,25 @@ def create_client(request):
             temp_password = get_random_string(length=12)
             client.set_password(temp_password)  # Hashing seguro con Django's auth.
             client.save()
-            # Mensaje de éxito incluye contraseña temporal (enviar por email en producción para más seguridad).
-            messages.success(request, f"Cliente {client.username} creado exitosamente. Contraseña temporal: {temp_password}")
+
+            # Enviar correo con contraseña temporal a cliente y entrenador
+            subject = "Nueva cuenta creada en el sistema"
+            message = (
+                f"Hola,\n\n"
+                f"Se ha creado una nueva cuenta para usted.\n"
+                f"Nombre de usuario: {client.username}\n"
+                f"Contraseña temporal: {temp_password}\n\n"
+                f"Esta contraseña es temporal, por favor al entrar cambie su contraseña."
+            )
+            from_email = 'no-reply@tu-dominio.com'  # Configura esto en settings.py preferiblemente
+            recipient_list = [client.email, request.user.email]
+
+            try:
+                send_mail(subject, message, from_email, recipient_list)
+                messages.success(request, f"Cliente {client.username} creado exitosamente. Contraseña temporal enviada por email a {client.email} y {request.user.email}.")
+            except Exception as e:
+                messages.error(request, f"Cliente creado, pero error al enviar email: {str(e)}. Contraseña temporal: {temp_password}")
+
             return redirect('trainer_dashboard')
         else:
             messages.error(request, "Error al crear el cliente. Revisa los datos ingresados.")
@@ -151,7 +180,6 @@ def create_client(request):
         form = ClientCreationForm()  # Form vacío para GET.
 
     return render(request, 'entrenador/crear_cliente.html', {'form': form})
-
 
 #-------------------------------#Gestión de Planes - El Corazón de la App--------------------------------------------
 
@@ -186,14 +214,12 @@ def create_plan(request):
 # Detalle de plan para entrenador. Calcula progreso basado en logs (cualquier log cuenta como completado para flexibilidad).
 #
 # Por qué: Proporciona insights como progreso porcentual. Usamos round para 2 decimales en progress. Ordenamos workouts por semana/día para lógica temporal.
-
 @login_required
 def trainer_plan_detail(request, plan_id):
     if request.user.role != 'ENTRENADOR':
         return redirect('inicio')
     plan = get_object_or_404(TrainingPlan, id=plan_id, trainer=request.user)
     workouts = plan.workouts.all().order_by('week_number', 'day_of_week')  # Orden lógico.
-
     total_exercises = WorkoutExercise.objects.filter(workout__plan=plan).count()
     completed_exercises = ExerciseLog.objects.filter(
         workout_exercise__workout__plan=plan
@@ -208,6 +234,28 @@ def trainer_plan_detail(request, plan_id):
     }
     return render(request, 'entrenador/plan_detail.html', context)
 
+@login_required
+def delete_plan(request, plan_id):
+    if request.user.role != 'ENTRENADOR':
+        return redirect('inicio')
+    plan = get_object_or_404(TrainingPlan, id=plan_id, trainer=request.user)
+    if request.method == 'POST':
+        plan.delete()
+        messages.success(request, 'Plan eliminado exitosamente.')
+        return redirect('trainer_dashboard')
+    return redirect('trainer_plan_detail', plan_id=plan_id)
+
+@login_required
+def delete_workout(request, workout_id):
+    if request.user.role != 'ENTRENADOR':
+        return redirect('inicio')
+    workout = get_object_or_404(Workout, id=workout_id, plan__trainer=request.user)
+    plan_id = workout.plan.id
+    if request.method == 'POST':
+        workout.delete()
+        messages.success(request, 'Rutina eliminada exitosamente.')
+        return redirect('trainer_plan_detail', plan_id=plan_id)
+    return redirect('trainer_plan_detail', plan_id=plan_id)
 
 # Edición de plan. Usa form con instance para actualizar.
 #
